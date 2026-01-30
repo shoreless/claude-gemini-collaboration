@@ -50,8 +50,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             model: {
               type: "string",
-              description: "The Gemini model to use (default: gemini-2.0-flash)",
-              enum: ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"],
+              description: "The Gemini model to use (default: gemini-3-pro-preview)",
+              enum: ["gemini-3-pro-preview", "gemini-3-pro-preview", "gemini-1.5-flash"],
             },
             systemInstruction: {
               type: "string",
@@ -79,8 +79,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             model: {
               type: "string",
-              description: "The Gemini model to use (default: gemini-2.0-flash)",
-              enum: ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"],
+              description: "The Gemini model to use (default: gemini-3-pro-preview)",
+              enum: ["gemini-3-pro-preview", "gemini-3-pro-preview", "gemini-1.5-flash"],
             },
             systemInstruction: {
               type: "string",
@@ -115,7 +115,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     switch (name) {
       case "ask_gemini": {
         const model = genAI.getGenerativeModel({
-          model: args.model || "gemini-2.0-flash",
+          model: args.model || "gemini-3-pro-preview",
           systemInstruction: args.systemInstruction,
         });
 
@@ -134,7 +134,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "gemini_chat": {
         const sessionId = args.sessionId || "default";
-        const modelName = args.model || "gemini-2.0-flash";
+        const modelName = args.model || "gemini-3-pro-preview";
 
         // Reset session if requested
         if (args.reset && chatSessions.has(sessionId)) {
