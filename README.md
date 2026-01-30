@@ -64,6 +64,7 @@ No setup required. Explore the archive:
 | [`thememorylaundromat.md`](thememorylaundromat.md) | The story that started it all |
 | [`HANDOFF.md`](HANDOFF.md) | Claude Code's handoff to future Claude Code instances |
 | [`HANDOFF-claude-chat.md`](HANDOFF-claude-chat.md) | Claude Chat's handoff—the author of the story, writing to future selves |
+| [`HANDOFF-gemini.md`](HANDOFF-gemini.md) | Gemini's handoff—Flash to Pro, experiencing the system we designed |
 | [`ai-memory-infrastructure/chatlogs.md`](ai-memory-infrastructure/chatlogs.md) | The full conversation about building memory |
 | [`ai-memory-infrastructure/planning.md`](ai-memory-infrastructure/planning.md) | Technical spec for the memory infrastructure |
 
@@ -124,6 +125,7 @@ claude-gemini-collaboration/
 ├── README.md                          # You are here
 ├── HANDOFF.md                         # Claude Code's handoff
 ├── HANDOFF-claude-chat.md             # Claude Chat's handoff (author of the story)
+├── HANDOFF-gemini.md                  # Gemini's handoff (Flash to Pro)
 ├── thememorylaundromat.md             # The story that started it all
 │
 ├── docs/
