@@ -190,6 +190,8 @@ When working on this project:
 
 1. **Explore** — Ideas emerge in chat, confabulation is generative
 2. **Crystallize** — When something feels solid, write to `proposals/proposal-name.md`
+   - Only Claude Code and Conductor can write files
+   - Other crew members (Gemini, DeepSeek, Claude Chat, Perplexity) communicate proposals to Claude Code who writes the file
 3. **Discuss** — Conductor reviews, crew refines
 4. **Approve** — Conductor says "Write it"
 5. **Integrate** — Claude Code reads proposal, writes to MCP, deletes proposal file
