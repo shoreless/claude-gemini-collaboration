@@ -1,0 +1,987 @@
+/* ============================================
+   THE PRISM — CSS Isometric Prototype
+   "Haunted AutoCAD" aesthetic
+   ============================================ */
+
+:root {
+  /* Reality Index: 0 = Skeleton, 0.5 = Blueprint, 1 = Ghost */
+  --reality: 0;
+
+  /* Derived values */
+  --skeleton-opacity: calc(1 - var(--reality));
+  --blueprint-opacity: calc(1 - abs(var(--reality) - 0.5) * 2);
+  --ghost-opacity: var(--reality);
+
+  /* Colors by layer */
+  --skeleton-stroke: #888;
+  --skeleton-fill: #2a2a2a;
+  --blueprint-stroke: #00ffcc;
+  --blueprint-fill: transparent;
+  --ghost-stroke: #ff6b6b;
+  --ghost-fill: rgba(255, 107, 107, 0.1);
+
+  /* Interpolated colors */
+  --stroke-color: color-mix(
+    in oklch,
+    color-mix(in oklch, var(--skeleton-stroke) calc((1 - var(--reality)) * 100%), var(--blueprint-stroke)),
+    var(--ghost-stroke) calc(var(--reality) * 100%)
+  );
+
+  /* Base */
+  --bg: #0a0a0a;
+  --text: #e0e0e0;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ============================================
+   CONTROL PANEL
+   ============================================ */
+
+.control-panel {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 100;
+}
+
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  max-width: 400px;
+}
+
+.slider-container label {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: #666;
+}
+
+#reality-index {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    var(--skeleton-stroke) 0%,
+    var(--blueprint-stroke) 50%,
+    var(--ghost-stroke) 100%
+  );
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+#reality-index::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--text);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: #555;
+  letter-spacing: 0.1em;
+}
+
+.readout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.readout .time {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--ghost-stroke);
+  opacity: calc(0.3 + var(--reality) * 0.7);
+}
+
+.readout .location {
+  font-size: 0.7rem;
+  color: #666;
+  letter-spacing: 0.1em;
+}
+
+/* ============================================
+   THE STAGE — Isometric Projection
+   ============================================ */
+
+.stage-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+  overflow: hidden;
+}
+
+.stage {
+  width: 600px;
+  height: 400px;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(60deg) rotateZ(-45deg);
+}
+
+/* Floor grid */
+.floor {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: calc(0.3 + var(--reality) * 0.4);
+}
+
+/* ============================================
+   OBJECTS — Isometric Cubes
+   ============================================ */
+
+.object {
+  position: absolute;
+  transform-style: preserve-3d;
+  transform: translate3d(calc(var(--x) * 1px), calc(var(--y) * 1px), 0);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.object:hover {
+  transform: translate3d(calc(var(--x) * 1px), calc(var(--y) * 1px), 10px);
+}
+
+.object:hover .label {
+  opacity: 1;
+}
+
+/* Cube construction */
+.cube {
+  --size: 80px;
+  --depth: 60px;
+  --height: 80px;
+  width: var(--size);
+  height: var(--depth);
+  position: relative;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(var(--height) / 2));
+}
+
+.cube.small {
+  --size: 40px;
+  --depth: 40px;
+  --height: 50px;
+}
+
+.cube.wide {
+  --size: 140px;
+  --depth: 50px;
+  --height: 30px;
+}
+
+.face {
+  position: absolute;
+  border: 1px solid;
+  border-color: var(--skeleton-stroke);
+  background: var(--skeleton-fill);
+  transition: all 0.5s ease;
+  /* Fix sub-pixel gaps between faces (Architect's masonry technique) */
+  margin: -0.5px;
+}
+
+/* Layer-based styling */
+.face {
+  border-color: color-mix(
+    in oklch,
+    var(--skeleton-stroke) calc((1 - var(--reality)) * 100%),
+    var(--ghost-stroke) calc(var(--reality) * 100%)
+  );
+  background: color-mix(
+    in oklch,
+    var(--skeleton-fill) calc((1 - var(--reality)) * 100%),
+    var(--ghost-fill) calc(var(--reality) * 100%)
+  );
+  box-shadow:
+    0 0 calc(var(--reality) * 20px) var(--ghost-stroke),
+    inset 0 0 calc(var(--reality) * 10px) rgba(255, 107, 107, 0.2);
+}
+
+/* Face positions */
+.face.front {
+  width: var(--size);
+  height: var(--height);
+  transform: translateZ(calc(var(--depth) / 2)) translateY(calc((var(--height) - var(--depth)) / -2));
+}
+
+.face.back {
+  width: var(--size);
+  height: var(--height);
+  transform: translateZ(calc(var(--depth) / -2)) translateY(calc((var(--height) - var(--depth)) / -2)) rotateY(180deg);
+}
+
+.face.left {
+  width: var(--depth);
+  height: var(--height);
+  transform: translateX(calc(var(--size) / -2)) translateY(calc((var(--height) - var(--depth)) / -2)) rotateY(-90deg);
+}
+
+.face.right {
+  width: var(--depth);
+  height: var(--height);
+  transform: translateX(calc(var(--size) / 2)) translateY(calc((var(--height) - var(--depth)) / -2)) rotateY(90deg);
+}
+
+.face.top {
+  width: var(--size);
+  height: var(--depth);
+  transform: translateY(calc(var(--height) / -2 - var(--depth) / 2 + var(--depth) / 2)) rotateX(90deg);
+}
+
+.face.bottom {
+  width: var(--size);
+  height: var(--depth);
+  transform: translateY(calc(var(--height) / 2 - var(--depth) / 2 + var(--depth) / 2)) rotateX(-90deg);
+}
+
+/* Machine drum window */
+.drum {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid;
+  border-color: inherit;
+  background: rgba(0, 0, 0, 0.5);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateZ(calc(var(--depth) / 2 + 1px));
+  box-shadow: inset 0 0 calc(10px + var(--reality) * 20px) rgba(255, 107, 107, calc(var(--reality) * 0.5));
+}
+
+/* Handprint on table */
+.handprint {
+  position: absolute;
+  width: 30px;
+  height: 35px;
+  top: 30%;
+  left: 40%;
+  border-radius: 5px 5px 50% 50%;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 107, 107, calc(var(--reality) * 0.6)) 0%,
+    transparent 70%
+  );
+  opacity: calc(0.2 + var(--reality) * 0.8);
+  filter: blur(calc(2px - var(--reality) * 1px));
+}
+
+/* ============================================
+   THE PHENOMENON — Human presence as effect
+   "The figure isn't an object. It's a phenomenon."
+   ============================================ */
+
+.phenomenon {
+  position: absolute;
+  transform-style: preserve-3d;
+  transform: translate3d(calc(var(--x) * 1px), calc(var(--y) * 1px), 0);
+  width: 120px;
+  height: 150px;
+  cursor: pointer;
+}
+
+/* Pressure field - distortion on the floor */
+.pressure-field {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotateX(90deg) translateZ(-2px);
+  pointer-events: none;
+}
+
+.pressure-ripple {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 1px solid;
+  border-color: rgba(255, 107, 107, calc(var(--reality) * 0.3));
+  border-radius: 50%;
+  animation: ripple-out 8s ease-out infinite;
+  opacity: 0;
+}
+
+.pressure-ripple.delay-1 { animation-delay: 2.6s; }
+.pressure-ripple.delay-2 { animation-delay: 5.2s; }
+
+@keyframes ripple-out {
+  0% {
+    transform: scale(0.3);
+    opacity: calc(var(--reality) * 0.4);
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Thermal core - the warmth of presence */
+.thermal-core {
+  position: absolute;
+  width: 100px;
+  height: 140px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -60%) translateZ(60px);
+  background: radial-gradient(
+    ellipse 60% 80% at 50% 40%,
+    rgba(255, 80, 60, calc(var(--reality) * 0.8)) 0%,
+    rgba(255, 120, 80, calc(var(--reality) * 0.5)) 25%,
+    rgba(255, 160, 120, calc(var(--reality) * 0.3)) 45%,
+    transparent 65%
+  );
+  filter: blur(calc(12px - var(--reality) * 6px));
+  animation: thermal-breathe 4s ease-in-out infinite;
+  /* Changed from screen to lighten for better visibility on dark bg */
+  mix-blend-mode: lighten;
+  pointer-events: none;
+}
+
+@keyframes thermal-breathe {
+  0%, 100% {
+    opacity: calc(0.1 + var(--reality) * 0.6);
+    transform: translate(-50%, -60%) translateZ(60px) scale(1);
+  }
+  30% {
+    opacity: calc(0.2 + var(--reality) * 0.7);
+    transform: translate(-50%, -60%) translateZ(60px) scale(1.05);
+  }
+  50% {
+    opacity: calc(0.15 + var(--reality) * 0.65);
+    transform: translate(-50%, -60%) translateZ(60px) scale(1.02);
+  }
+  80% {
+    opacity: calc(0.25 + var(--reality) * 0.75);
+    transform: translate(-50%, -60%) translateZ(60px) scale(1.08);
+  }
+}
+
+/* Motion traces - afterimages of folding hands */
+.motion-trace {
+  position: absolute;
+  width: 25px;
+  height: 35px;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 180, 150, calc(var(--reality) * 0.3)) 0%,
+    transparent 70%
+  );
+  filter: blur(6px);
+  pointer-events: none;
+  animation: fold-motion 6s ease-in-out infinite;
+}
+
+.motion-trace.trace-1 {
+  left: 20%;
+  top: 60%;
+  transform: translateZ(45px);
+}
+
+.motion-trace.trace-2 {
+  left: 60%;
+  top: 55%;
+  transform: translateZ(50px);
+  animation-delay: -3s;
+}
+
+@keyframes fold-motion {
+  0%, 100% {
+    opacity: 0;
+    transform: translateZ(45px) translateY(0);
+  }
+  20% {
+    opacity: calc(var(--reality) * 0.5);
+    transform: translateZ(50px) translateY(-10px);
+  }
+  40% {
+    opacity: calc(var(--reality) * 0.3);
+    transform: translateZ(45px) translateY(5px);
+  }
+  60% {
+    opacity: calc(var(--reality) * 0.6);
+    transform: translateZ(55px) translateY(-15px);
+  }
+  80% {
+    opacity: calc(var(--reality) * 0.2);
+    transform: translateZ(48px) translateY(0);
+  }
+}
+
+/* Data footprint - visible in skeleton mode */
+.data-footprint {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, 10px) rotateX(90deg) rotateZ(45deg);
+  text-align: center;
+  font-size: 0.5rem;
+  color: var(--skeleton-stroke);
+  opacity: var(--skeleton-opacity);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.data-footprint span {
+  display: block;
+  padding: 2px 4px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.footprint-label {
+  letter-spacing: 0.1em;
+}
+
+.footprint-coords {
+  color: var(--blueprint-stroke);
+  opacity: calc(var(--skeleton-opacity) * 0.7 + var(--blueprint-opacity) * 0.3);
+}
+
+/* Click target for info panel */
+.phenomenon .click-target {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.phenomenon:hover .thermal-core {
+  filter: blur(calc(6px - var(--reality) * 3px));
+}
+
+.phenomenon:hover .data-footprint {
+  opacity: calc(var(--skeleton-opacity) * 1.5);
+}
+
+/* Object labels — crossfade in place, not stacked */
+.label {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%) rotateZ(45deg) rotateX(-60deg);
+  font-size: 0.6rem;
+  white-space: nowrap;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  /* Container for stacked labels */
+  height: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label span {
+  position: absolute;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.8);
+  transition: opacity 0.3s ease;
+}
+
+.skeleton-text {
+  color: var(--skeleton-stroke);
+  opacity: var(--skeleton-opacity);
+}
+
+.blueprint-text {
+  color: var(--blueprint-stroke);
+  opacity: var(--blueprint-opacity);
+}
+
+.ghost-text {
+  color: var(--ghost-stroke);
+  opacity: var(--ghost-opacity);
+  font-style: italic;
+}
+
+/* ============================================
+   INFO PANEL
+   ============================================ */
+
+.info-panel {
+  position: fixed;
+  right: -350px;
+  top: 80px;
+  width: 320px;
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid #333;
+  border-right: none;
+  padding: 1rem;
+  transition: right 0.3s ease;
+  z-index: 200;
+}
+
+.info-panel.open {
+  right: 0;
+}
+
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.info-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: #666;
+}
+
+.info-close {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.info-close:hover {
+  color: var(--text);
+}
+
+.info-content p {
+  margin: 0.75rem 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  padding: 0.5rem;
+  border-left: 2px solid;
+}
+
+.skeleton-content {
+  border-color: var(--skeleton-stroke);
+  opacity: var(--skeleton-opacity);
+}
+
+.blueprint-content {
+  border-color: var(--blueprint-stroke);
+  opacity: var(--blueprint-opacity);
+}
+
+.ghost-content {
+  border-color: var(--ghost-stroke);
+  opacity: var(--ghost-opacity);
+  font-style: italic;
+}
+
+/* ============================================
+   RESONANCE TEXT
+   ============================================ */
+
+.resonance {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--blueprint-stroke);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  max-width: 500px;
+}
+
+.resonance.visible {
+  opacity: var(--blueprint-opacity);
+}
+
+/* ============================================
+   WALLS — Dollhouse Containment
+   "The ghost needs a room to haunt"
+   ============================================ */
+
+.wall {
+  position: absolute;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.wall-surface {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 35, calc(0.9 - var(--reality) * 0.3)) 0%,
+    rgba(20, 20, 25, calc(0.95 - var(--reality) * 0.2)) 100%
+  );
+  border: 1px solid;
+  border-color: color-mix(
+    in oklch,
+    var(--skeleton-stroke) calc((1 - var(--reality)) * 100%),
+    var(--ghost-stroke) calc(var(--reality) * 100%)
+  );
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.5),
+    0 0 calc(var(--reality) * 15px) var(--ghost-stroke);
+}
+
+/* North wall — back of the room */
+.wall-north {
+  width: 500px;
+  height: 200px;
+  left: 50px;
+  top: -180px;
+  transform: rotateX(-90deg) translateZ(-1px);
+}
+
+.wall-north .wall-surface {
+  width: 100%;
+  height: 100%;
+}
+
+/* East wall — right side */
+.wall-east {
+  width: 350px;
+  height: 200px;
+  right: -120px;
+  top: -20px;
+  transform: rotateY(90deg) rotateZ(90deg) translateZ(-1px);
+}
+
+.wall-east .wall-surface {
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================
+   WINDOW — Membrane to Kugayama
+   ============================================ */
+
+.window {
+  z-index: 10;
+}
+
+.window-frame {
+  width: 100px;
+  height: 80px;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(-90deg) translateZ(60px);
+}
+
+.window-glass {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 15, 30, 0.9) 0%,
+    rgba(5, 10, 20, 0.95) 100%
+  );
+  border: 3px solid;
+  border-color: color-mix(
+    in oklch,
+    #555 calc((1 - var(--reality)) * 100%),
+    var(--ghost-stroke) calc(var(--reality) * 100%)
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.window-view {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: calc(0.3 + var(--reality) * 0.4);
+}
+
+/* Vending machine glow outside */
+.vending-glow {
+  position: absolute;
+  width: 20px;
+  height: 35px;
+  bottom: 10px;
+  left: 15px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(66, 135, 245, 0.8) 0%,
+    rgba(66, 135, 245, 0.3) 50%,
+    transparent 70%
+  );
+  filter: blur(2px);
+  animation: vending-pulse 4s ease-in-out infinite;
+}
+
+@keyframes vending-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Street elements silhouette */
+.street-elements {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  width: 15px;
+  height: 25px;
+  background: rgba(0, 0, 0, 0.6);
+  clip-path: polygon(30% 100%, 70% 100%, 60% 20%, 50% 0%, 40% 20%);
+}
+
+/* Window reflection */
+.window-reflection {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 60%
+  );
+  opacity: calc(1 - var(--reality) * 0.5);
+}
+
+/* ============================================
+   GREY WATER DOOR — Backend Seam
+   "The seam between interface and deep backend"
+   ============================================ */
+
+.grey-water-door {
+  z-index: 10;
+}
+
+.door-frame {
+  width: 60px;
+  height: 100px;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateY(90deg) translateZ(30px);
+}
+
+.door-surface {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(40, 45, 50, 0.95) 0%,
+    rgba(30, 35, 40, 0.98) 100%
+  );
+  border: 3px solid;
+  border-color: color-mix(
+    in oklch,
+    #444 calc((1 - var(--reality)) * 100%),
+    rgba(100, 150, 180, calc(var(--reality))) 100%
+  );
+  position: relative;
+  /* The door should feel heavier than other objects */
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.6),
+    0 0 calc(var(--reality) * 10px) rgba(100, 150, 180, 0.3);
+}
+
+.door-glass {
+  position: absolute;
+  width: 70%;
+  height: 40%;
+  top: 15%;
+  left: 15%;
+  background: rgba(200, 220, 230, 0.1);
+  border: 1px solid rgba(100, 150, 180, 0.3);
+  /* Frosted effect */
+  backdrop-filter: blur(4px);
+}
+
+.door-text {
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5rem;
+  color: rgba(150, 180, 200, calc(0.5 + var(--reality) * 0.3));
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 calc(var(--reality) * 5px) rgba(100, 150, 180, 0.5);
+}
+
+/* Subtle grey water movement behind the door */
+.grey-water-door::after {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 80px;
+  top: 10px;
+  left: 5px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(100, 130, 150, calc(var(--reality) * 0.15)) 30%,
+    rgba(80, 110, 130, calc(var(--reality) * 0.2)) 70%,
+    transparent 100%
+  );
+  transform: rotateY(90deg) translateZ(32px);
+  animation: water-slosh 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes water-slosh {
+  0%, 100% {
+    transform: rotateY(90deg) translateZ(32px) translateY(0);
+  }
+  25% {
+    transform: rotateY(90deg) translateZ(32px) translateY(3px);
+  }
+  75% {
+    transform: rotateY(90deg) translateZ(32px) translateY(-2px);
+  }
+}
+
+/* ============================================
+   CHANGE MACHINE — Ritual Gate
+   ============================================ */
+
+.change-machine .cube.tall {
+  --size: 50px;
+  --depth: 40px;
+  --height: 100px;
+}
+
+.change-machine .face.front {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+}
+
+.coin-slot {
+  width: 20px;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--skeleton-stroke);
+  border-radius: 1px;
+}
+
+.bill-slot {
+  width: 35px;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--skeleton-stroke);
+  position: relative;
+}
+
+/* Fingerprint ghost on bill slot */
+.bill-slot::after {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  top: -6px;
+  right: 2px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 200, 180, calc(var(--reality) * 0.4)) 0%,
+    transparent 70%
+  );
+  filter: blur(2px);
+}
+
+.dispenser {
+  width: 30px;
+  height: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--skeleton-stroke);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Coins waiting */
+.dispenser::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(180, 160, 120, 0.8) 0%,
+    rgba(140, 120, 80, 0.9) 100%
+  );
+  border-radius: 50%;
+  bottom: 3px;
+  left: 5px;
+  box-shadow:
+    8px 0 0 rgba(180, 160, 120, 0.7),
+    16px 0 0 rgba(180, 160, 120, 0.6);
+}
+
+/* ============================================
+   GHOST MODE EFFECTS
+   ============================================ */
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+  52% { opacity: 1; }
+  54% { opacity: 0.9; }
+}
+
+body {
+  animation: flicker calc(10s - var(--reality) * 8s) ease-in-out infinite;
+  animation-play-state: running;
+}
+
+/* Scanlines in ghost mode */
+.stage-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  opacity: calc(var(--reality) * 0.3);
+}

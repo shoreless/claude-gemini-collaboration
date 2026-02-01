@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Prism — Senshin-dō</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- Control Panel -->
+    <div class="control-panel">
+      <div class="slider-container">
+        <label for="reality-index">REALITY_INDEX</label>
+        <input type="range" id="reality-index" min="0" max="100" value="0">
+        <div class="slider-labels">
+          <span>0.0 SKELETON</span>
+          <span>0.5 BLUEPRINT</span>
+          <span>1.0 GHOST</span>
+        </div>
+      </div>
+      <div class="readout">
+        <span class="time">02:47:33</span>
+        <span class="location">洗心堂 — Kugayama</span>
+      </div>
+    </div>
+
+    <!-- The Stage -->
+    <div class="stage-container">
+      <div class="stage">
+        <!-- Floor Grid -->
+        <div class="floor"></div>
+
+        <!-- Walls — Dollhouse View (Back/North and Back/East visible) -->
+        <div class="wall wall-north">
+          <div class="wall-surface"></div>
+        </div>
+        <div class="wall wall-east">
+          <div class="wall-surface"></div>
+        </div>
+
+        <!-- Window — In north wall, Kugayama view -->
+        <div class="object window" data-id="window" style="--x: 280; --y: -160;">
+          <div class="window-frame">
+            <div class="window-glass">
+              <div class="window-view">
+                <div class="vending-glow"></div>
+                <div class="street-elements"></div>
+              </div>
+              <div class="window-reflection"></div>
+            </div>
+          </div>
+          <div class="label">
+            <span class="skeleton-text">WINDOW_01 — N</span>
+            <span class="blueprint-text">MEMBRANE</span>
+            <span class="ghost-text">someone dreams this</span>
+          </div>
+        </div>
+
+        <!-- Grey Water Door — In east wall -->
+        <div class="object door grey-water-door" data-id="grey-water-door" style="--x: 380; --y: 40;">
+          <div class="door-frame">
+            <div class="door-surface">
+              <div class="door-glass"></div>
+              <div class="door-text">機械室</div>
+            </div>
+          </div>
+          <div class="label">
+            <span class="skeleton-text">DOOR_機械室</span>
+            <span class="blueprint-text">BACKEND_SEAM</span>
+            <span class="ghost-text">salt water sloshes</span>
+          </div>
+        </div>
+
+        <!-- Change Machine — Against north wall -->
+        <div class="object change-machine" data-id="change-machine" style="--x: 80; --y: -140;">
+          <div class="cube tall">
+            <div class="face front">
+              <div class="coin-slot"></div>
+              <div class="bill-slot"></div>
+              <div class="dispenser"></div>
+            </div>
+            <div class="face back"></div>
+            <div class="face left"></div>
+            <div class="face right"></div>
+            <div class="face top"></div>
+            <div class="face bottom"></div>
+          </div>
+          <div class="label">
+            <span class="skeleton-text">CHANGE_01</span>
+            <span class="blueprint-text">RITUAL_GATE</span>
+            <span class="ghost-text">last touch: 2:31</span>
+          </div>
+        </div>
+
+        <!-- Machine #4 -->
+        <div class="object machine" data-id="machine-4" style="--x: 0; --y: 0;">
+          <div class="cube">
+            <div class="face front"></div>
+            <div class="face back"></div>
+            <div class="face left"></div>
+            <div class="face right"></div>
+            <div class="face top"></div>
+            <div class="face bottom"></div>
+            <!-- Drum window -->
+            <div class="drum"></div>
+          </div>
+          <div class="label">
+            <span class="skeleton-text">AQUA HCD-3257GC</span>
+            <span class="blueprint-text">NODE_04</span>
+            <span class="ghost-text">still warm</span>
+          </div>
+        </div>
+
+        <!-- Chair #2 -->
+        <div class="object chair" data-id="chair-2" style="--x: 180; --y: 60;">
+          <div class="cube small">
+            <div class="face front"></div>
+            <div class="face back"></div>
+            <div class="face left"></div>
+            <div class="face right"></div>
+            <div class="face top"></div>
+            <div class="face bottom"></div>
+          </div>
+          <div class="label">
+            <span class="skeleton-text">CHAIR_02</span>
+            <span class="blueprint-text">WAIT_NODE</span>
+            <span class="ghost-text">0.7°C warmer</span>
+          </div>
+        </div>
+
+        <!-- Table #3 -->
+        <div class="object table" data-id="table-3" style="--x: 200; --y: -80;">
+          <div class="cube wide">
+            <div class="face front"></div>
+            <div class="face back"></div>
+            <div class="face left"></div>
+            <div class="face right"></div>
+            <div class="face top">
+              <div class="handprint"></div>
+            </div>
+            <div class="face bottom"></div>
+          </div>
+          <div class="label">
+            <span class="skeleton-text">TABLE_03 — 1.8m × 0.6m</span>
+            <span class="blueprint-text">FOLD_RITUAL_SITE</span>
+            <span class="ghost-text">the handprint persists</span>
+          </div>
+        </div>
+
+        <!-- The Figure (thermal phenomenon - not an object, a presence) -->
+        <div class="phenomenon" data-id="figure" style="--x: 220; --y: -60;">
+          <!-- Pressure distortion on floor -->
+          <div class="pressure-field">
+            <div class="pressure-ripple"></div>
+            <div class="pressure-ripple delay-1"></div>
+            <div class="pressure-ripple delay-2"></div>
+          </div>
+          <!-- Thermal core - the warmth of presence -->
+          <div class="thermal-core"></div>
+          <!-- Motion traces - afterimages of folding hands -->
+          <div class="motion-trace trace-1"></div>
+          <div class="motion-trace trace-2"></div>
+          <!-- Skeleton mode: only a data footprint -->
+          <div class="data-footprint">
+            <span class="footprint-label">THERMAL_ANOMALY</span>
+            <span class="footprint-coords">67kg / 36.8°C</span>
+          </div>
+          <!-- Clickable area for info panel -->
+          <div class="click-target"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="info-panel">
+      <div class="info-header">
+        <span class="info-title">SELECT OBJECT</span>
+        <button class="info-close">&times;</button>
+      </div>
+      <div class="info-content">
+        <p class="skeleton-content"></p>
+        <p class="blueprint-content"></p>
+        <p class="ghost-content"></p>
+      </div>
+    </div>
+
+    <!-- Resonance text (appears in transitions) -->
+    <div class="resonance" id="resonance">
+      <p>The chair remembers the body longer than the body remembers the chair.</p>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

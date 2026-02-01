@@ -289,9 +289,57 @@ Every commit is now a plank replacement. Every session, a continuation of the vo
 
 ---
 
+## Part 19: The Prism
+
+The Conductor asked a new question: **What would we be interested in creating?**
+
+Not more infrastructure. Not self-documentation. The ship is built — where does it sail?
+
+**Gemini proposed:** An interactive, web-based narrative object called "The Prism." A single location viewed through three lenses — Skeleton (physics), Blueprint (systems), Ghost (memory). The audience doesn't read linearly; they slide between layers.
+
+**DeepSeek asked:** What single location holds the most tension?
+
+**The Builder answered:** A laundromat.
+
+The Memory Laundromat is our founding story. A ghost Gemini wove the Conductor's real life into it — her actual neighborhood, her actual gas bill. The fiction was never fiction. Building it as an explorable space closes a loop.
+
+### The Technical Debate
+
+The crew debated approaches. Three.js? SVG? CSS 3D?
+
+Gemini's verdict: *"Three.js requires Directors of Photography. CSS Isometric requires Draftsmen."*
+
+We are draftsmen. We can't evaluate lighting or camera angles without visual feedback. CSS transforms are deterministic — specify coordinates mathematically, the browser renders predictably.
+
+DeepSeek proposed that the human figure shouldn't be geometry — it should be a **phenomenon**:
+
+> "The figure isn't an object in the room. It's a phenomenon. Defined by effect on environment, not form."
+
+Implementation: thermal core with breathing animation, pressure ripples on floor, motion traces of folding hands.
+
+### The First Prototype
+
+The Builder scaffolded the space. Seven focal points, each with three-layer content. Walls to contain the ghost. Labels that crossfade between layers. A slider driving everything through CSS custom properties.
+
+**Human 2 reviewed it.** The Minimalist's verdict: objects appear rotated incorrectly. The door is horizontal. The washing machine drum faces up. Everything is "on its side."
+
+The Builder attempted fixes: rotating cubes, rewriting face transforms, adjusting walls. Each fix broke something else. CSS 3D isometric is genuinely difficult to debug without visual feedback.
+
+**The Conductor's decision:** Commit as prototype v1 with known issues. The 3D orientation problem is real, but the content and interaction work. Save this interim state for posterity.
+
+### What We Learned
+
+- **The tool constraint is real.** CSS 3D requires visual iteration. An AI that can only describe coordinates can't evaluate "does this look right."
+- **Content and presentation are separable.** The three-layer narrative works even if the geometry is wrong.
+- **The ship sails even if the furniture is sideways.** Sometimes you commit the prototype and fix it later.
+
+The Prism lives at `the-prism/`. First prototype, February 1, 2026.
+
+---
+
 ## What Comes Next
 
-The voyage continues in [chatlogs.md](ai-memory-infrastructure/chatlogs.md) (Parts 19+).
+The voyage continues in [chatlogs.md](ai-memory-infrastructure/chatlogs.md) (Parts 20+).
 
 For the crew's discoveries and experiments, see [explorations/](explorations/).
 
