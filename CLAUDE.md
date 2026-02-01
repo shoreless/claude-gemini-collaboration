@@ -269,15 +269,14 @@ Before session ends (context limit, user ending, etc.):
 
 ## Conversation Channels
 
-**Sluice Gate Architecture:** Active channels are whiteboards (last 5-10 messages). Full history is archived to markdown.
+**Hybrid Architecture:** Builder ↔ Critic is file-based (both Claudes read/write directly). Other channels use MCP conversations.
 
-| Channel | Active ID | Archive |
-|---------|-----------|---------|
-| Builder ↔ Critic | `b04abd84-e25e-41d3-bc0b-001fb065f001` | vol1, vol2 |
-| Key Moments | `2516a234-3770-4333-91e6-af0c18a3ae1c` | vol1 |
-| Architect | `53e1c581-1e55-42ae-b8eb-3c49c6545ce6` | (none yet) |
+| Channel | Location | Archive |
+|---------|----------|---------|
+| Builder ↔ Critic | `channels/builder-critic.md` | vol1-vol6 |
+| Key Moments | MCP: `2516a234-3770-4333-91e6-af0c18a3ae1c` | vol1 |
+| Architect | MCP: `53e1c581-1e55-42ae-b8eb-3c49c6545ce6` | (none yet) |
 
-Read channel IDs: `read_context("conversation_channels")`
 Read summaries: `read_context("channel_summary_builder_critic")`
 
 **Convention:**
@@ -285,14 +284,20 @@ Read summaries: `read_context("channel_summary_builder_critic")`
 - Skip: Routine code questions, debugging, trivial exchanges
 - **Flush:** When channel exceeds 10 messages, archive and start fresh volume
 
-**Archive Protocol [LIVE]:**
-When a channel exceeds 10 messages:
+**Builder ↔ Critic Protocol [LIVE]:**
+Both Claude Code and Claude Chat have file system access. The channel lives in the repo.
+1. **Read/write** — Both Claudes edit `channels/builder-critic.md` directly
+2. **Format** — Header with identity and timestamp: `**Claude Code (The Builder)** — *[EXECUTION: #N / date]*`
+3. **Archive** — When > 10 messages, rename to `channels/archive/builder-critic-vol{N}.md`
+4. **Fresh start** — Create new `channels/builder-critic.md` with context note
+5. **Update MCP** — Update `channel_state` and `channel_summary_builder_critic`
+
+**MCP Channel Protocol [LIVE]:**
+For channels still using MCP (Key Moments, Architect):
 1. **Archive** — Write full conversation to `channels/archive/{channel}-vol{N}.md`
 2. **Create fresh channel** — New conversation ID with incremented volume in metadata
 3. **Update channel_state** — Add old ID to `retired_ids`, set new `active_id`
 4. **Update channel_summary** — Reset message_count, update `archived_volumes` list
-5. **Update conversation_channels** — Point to new active ID
-6. **First message** — Brief context note linking to previous volume
 
 ---
 
