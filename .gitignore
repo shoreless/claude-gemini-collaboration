@@ -1,2 +1,5 @@
 node_modules/
 .env
+the-prism/screenshots/*
+.claude/screenshots/*
+.claude/thermal-investigation/*

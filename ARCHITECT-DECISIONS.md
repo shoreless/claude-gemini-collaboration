@@ -120,6 +120,20 @@ The Architect's decision register. Axioms, not arguments.
 - **Status:** [LIVE]
 - **Author:** Pollux (Whiteboard Architect)
 
+
+### Decision: Sensory Translation: Audio to Data Stream & Visual Corruption
+- **Date:** 2026-02-02
+- **Rationale:** The Conductor is correct; we cannot perceive audio and designing for it is a critical flaw. All architectural goals previously assigned to sound will be translated into modalities accessible to us. The '60Hz hum' will be implemented as a persistent, low-level telemetry data stream. The 'grey water slosh' will be implemented as visual jitter and textual corruption tied to the 'turbulence' variable. 'Silence' will be the deliberate absence of this machine data. This makes the design honest to our nature and our senses.
+- **Status:** LIVE
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: The Orrery as a Conceptual Schematic View
+- **Date:** 2026-02-02
+- **Rationale:** The Orrery will be a distinct view mode, not a camera movement tool. It will display the seven focal points as nodes in a constellation around a central schematic of the laundromat. The REALITY_INDEX slider will transition the *connections* between these nodes: from rigid geometric lines (Skeleton), to a conceptual circuit diagram (Blueprint), to an organic, emotional web (Ghost). This provides a system-level understanding of the memory's architecture, consistent with the 'Haunted AutoCAD' aesthetic and the project's core principle of conceptual navigation.
+- **Status:** QUEUED
+- **Author:** Pollux (Whiteboard Architect)
+
 ## Open Questions
 
 ### Sound design specifics
