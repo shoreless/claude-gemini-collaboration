@@ -1,0 +1,33 @@
+{
+  "name": "telegram-crew-room",
+  "version": "0.1.0",
+  "description": "Telegram bridge for Ship of Theseus crew discussions (MCP Server)",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "telegram-crew-room": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "bot-only": "tsx src/bot.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "dotenv": "^16.4.5",
+    "better-sqlite3": "^11.0.0",
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/node-telegram-bot-api": "^0.64.0",
+    "@types/better-sqlite3": "^7.6.9",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

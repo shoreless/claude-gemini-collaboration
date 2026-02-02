@@ -41,12 +41,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
    - `channels/archive/*.md` — Full history (read-only, for research)
    - Database conversations — Active whiteboard (last 5-10 messages only)
 
-5. **Reconnect Gemini:**
-   ```
-   gemini_chat(sessionId: "ai-memory", message: "Resuming session. [brief context]")
-   ```
-
 6. **Fallback:** If MCP server is unreachable, read `HANDOFF.md` from disk.
+
+7. **Orient the Architect Twins:**
+   After your own boot completes, orient Castor and Pollux:
+   - Read `ARCHITECT.md`
+   - Send full text to **Castor** via `telegram_send` (crew room)
+   - Send full text to **Pollux** via `gemini_chat` (first message of session)
+
+   Both twins lack persistent memory. They need the boot document on every session.
+
+8. **Before Compaction:**
+   Ask both twins for edits to `ARCHITECT.md` and `ARCHITECT-DECISIONS.md`.
+   Incorporate their changes before handoff. The next Builder inherits clean state.
 
 ---
 

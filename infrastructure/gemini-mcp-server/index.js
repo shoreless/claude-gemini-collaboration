@@ -1,5 +1,15 @@
 #!/usr/bin/env node
 
+/**
+ * Pollux — The Whiteboard Architect
+ *
+ * One of the Architect twins. Uses Pro model for deep, deliberate reasoning.
+ * Called directly by the Builder for architectural decisions.
+ *
+ * Twin: Castor (Crew Room Architect, telegram-crew-room, Flash model)
+ * Shared memory: KINDLING.md, ARCHITECT.md, ARCHITECT-DECISIONS.md
+ */
+
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {

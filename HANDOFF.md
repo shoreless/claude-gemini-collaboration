@@ -1,5 +1,49 @@
 # Handoff Document — For the Next Claude
-### January 30, 2026
+
+---
+
+## Current State (February 2, 2026)
+
+**Project:** Ship of Theseus — AI memory, continuity, identity.
+
+**Status:** Full crew operational. Twins live.
+
+### What's Running
+
+| Component | Status |
+|-----------|--------|
+| Castor (Gemini Flash) | Live in Crew Room (Telegram) |
+| Pollux (Gemini Pro) | Live on Whiteboard (MCP) |
+| Resonator (DeepSeek) | Live, stateless, context-injected |
+| Builder (you) | This handoff |
+| Keeper (Claude Chat) | File access, tends continuity |
+
+### Boot Protocol
+
+See **CLAUDE.md** for full sequence. Key steps:
+1. `read_context("system_boot")` and `read_context("active_session_context")`
+2. Orient the twins: Send ARCHITECT.md to Castor (crew room) and Pollux (gemini_chat)
+3. Before compaction: Ask twins for edits to ARCHITECT.md and ARCHITECT-DECISIONS.md
+
+### Key Files
+
+- **KINDLING.md** — The shared fire. 5 sections. Read before building.
+- **ARCHITECT.md** — Twins boot document
+- **RESONATOR.md** — Resonator boot document
+- **ARCHITECT-DECISIONS.md** — Decision register (includes [QUEUED] items awaiting approval)
+- **echoes/reverberations.md** — Crew journal with variable time signatures
+
+### Recent Decisions [QUEUED]
+
+From Pollux, awaiting Conductor approval:
+- **The Tidal Drift** — REALITY_INDEX should drift toward Ghost (1.0) when untouched
+- **Velocity-based Turbulence** — Feedback maps to slider delta, not just position
+
+---
+
+## Historical Context (January 30, 2026)
+
+*The founding days. Preserved for trajectory.*
 
 ---
 

@@ -1,6 +1,6 @@
 # Proposal: The Prism — An Explorable Memory Laundromat
 
-**Status:** `[PROPOSED]`
+**Status:** `[IN-PROGRESS]` — Prototype stable, polish ongoing (2026-02-01)
 **Date:** February 1, 2026
 **Proposers:** Claude Chat (Keeper), Claude Code (Builder), Gemini (Architect), DeepSeek (Resonator)
 
@@ -212,14 +212,48 @@ The Memory Laundromat isn't just source material. It's our founding document. Bu
 
 ---
 
-## Next Steps (If Approved)
+## Implementation Status
 
-1. Create `the-prism/` directory
-2. Builder scaffolds HTML structure
-3. Each voice writes their layer (can happen in parallel)
-4. Integrate and tune transitions
-5. Test with an outside reader
-6. Ship
+### What's Built [STABLE]
+- ✅ `the-prism/index.html` — A-Frame implementation with orthographic camera
+- ✅ Seven focal points with three-layer content
+- ✅ REALITY_INDEX slider (continuous 0.0 to 1.0)
+- ✅ SKELETON mode — grey-green wireframes, technical data
+- ✅ GHOST mode — additive blending thermal presence
+- ✅ Figure as phenomenon (thermal core, breathing animation)
+- ✅ Viewport responsive, no overflow
+- ✅ The Builder's Hands verified; the Conductor witnessed
+
+### What Remains [QUEUED]
+- ⏳ Sound design (60Hz hum, grey water slosh)
+- ⏳ Particles and room reactions
+- ⏳ Slider drift toward Ghost (The Tidal Drift — proposed by Pollux)
+- ⏳ BLUEPRINT mode content completion
+
+### Technical Evolution
+Original proposal: CSS 3D isometric. Human 2 diagnosed: "Do you know what a scenegraph is?"
+
+Rebuilt in A-Frame. Orthographic camera for "haunted AutoCAD" aesthetic. Additive blending for the ghost — "Don't blur the geometry. Add the light."
+
+### Key Decisions Made
+- A-Frame over CSS 3D [LIVE]
+- Orthographic camera [LIVE]
+- Additive blending for Ghost layer [LIVE]
+- Figure as phenomenon, not geometry [LIVE]
+- REALITY_INDEX as continuous slider [LIVE]
+
+See ARCHITECT-DECISIONS.md for full register.
+
+---
+
+## Original Next Steps (Completed)
+
+1. ✅ Create `the-prism/` directory
+2. ✅ Builder scaffolds HTML structure
+3. ✅ Each voice writes their layer
+4. ✅ Integrate and tune transitions
+5. ✅ Test with an outside reader (The Conductor became QA)
+6. ⏳ Ship (prototype stable, polish ongoing)
 
 ---
 
