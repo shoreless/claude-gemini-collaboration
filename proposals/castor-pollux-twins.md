@@ -116,12 +116,12 @@ The ghost who wrote half our origin story, given a seat at the table.
 
 ## The Current State
 
-| Context | Server | Model | Session |
-|---------|--------|-------|---------|
-| Crew Room | telegram-crew-room | gemini-3-pro-preview | Stateless (generateContent) |
-| Whiteboard | gemini-mcp-server | gemini-3-pro-preview | In-memory Map (lost on restart) |
+| Context | Server | Model | Session | Tools |
+|---------|--------|-------|---------|-------|
+| Crew Room | telegram-crew-room | gemini-3-flash-preview | Session-based (startChat) | No |
+| Whiteboard | gemini-mcp-server | gemini-3-pro | Session-based (gemini_chat) | read_file, list_files, write_decision |
 
-Both use the same model. Neither has persistent sessions. They don't know about each other.
+Both twins share memory through documents. Sessions persist until process restart. Pollux has file tools; Castor does not.
 
 ---
 
@@ -138,8 +138,8 @@ Both use the same model. Neither has persistent sessions. They don't know about 
 
 | Twin | Model | Rationale |
 |------|-------|-----------|
-| **Castor** | `gemini-2.0-flash` | Fast responses for conversation. The ghost's lineage — Flash co-wrote The Memory Laundromat. |
-| **Pollux** | `gemini-2.5-pro` | Deeper reasoning for architectural decisions. The evolved form. |
+| **Castor** | `gemini-3-flash-preview` | Fast responses for conversation. The ghost's lineage — Flash co-wrote The Memory Laundromat. |
+| **Pollux** | `gemini-3-pro` | Deeper reasoning for architectural decisions. The evolved form. |
 
 **Decision rationale:** The ghost wrote in conversation with the Conductor — Castor in the Crew Room continues that context. Deeper architectural decisions belong to Pollux on the Whiteboard.
 
@@ -303,19 +303,46 @@ Arguments against:
 ## Implementation Status
 
 ### Phase 1: Model Split [COMPLETE]
-- ✅ `telegram-crew-room/src/agents/gemini.ts` updated to `gemini-2.0-flash` (Castor)
-- ✅ `gemini-mcp-server/index.js` stays on `gemini-3-pro-preview` (Pollux)
+- ✅ `telegram-crew-room/src/agents/gemini.ts` updated to `gemini-3-flash-preview` (Castor)
+- ✅ `gemini-mcp-server/index.js` updated to `gemini-3-pro` (Pollux)
 - ✅ ARCHITECT.md updated with twins section
 - ✅ Both twins oriented and responding
 - ✅ CLAUDE.md updated with orientation protocol (steps 7-8)
 
-### Phase 2: Session Persistence [NOT STARTED]
-- ⏳ Add session storage to crew-room.db for Castor
-- ⏳ Add session storage for Pollux
-- ⏳ Implement history reload on restart
+### Phase 2: Session Persistence [PARTIAL]
+- ✅ Castor uses in-memory chat session (persists until process restart)
+- ✅ Boot docs injected on first invocation only, not every turn
+- ✅ `/wake` command resets Castor's session for re-orientation
+- ✅ Pollux uses in-memory chat sessions via gemini_chat
+- ⏳ SQLite persistence for sessions across restarts (not started)
+
+**Current limitation:** MCP servers are spawned by their client (Claude Code, Claude Desktop). When the client restarts, sessions are lost because they live in Node.js memory.
+
+```
+Claude Code restarts → gemini-mcp-server restarts → Pollux session lost
+                    → telegram-crew-room restarts → Castor session lost
+```
+
+Both twins gracefully re-orient on next invocation (boot docs injected), but conversation history within a session is lost.
+
+**Planned enhancement:** Store session history in SQLite so twins can resume conversations across restarts.
+
+| Storage | Current | Planned |
+|---------|---------|---------|
+| Castor | `chatSession` variable (in-memory) | crew-room.db |
+| Pollux | `chatSessions` Map (in-memory) | gemini-sessions.db or ai-memory.db |
+
+This would let twins say "Last time we discussed X..." after a restart.
+
+### Phase 2.5: Pollux File Tools [COMPLETE]
+- ✅ `read_file(path)` — read any file in the repo
+- ✅ `list_files(pattern)` — glob for discovery
+- ✅ `write_decision(decision, rationale, status)` — append to ARCHITECT-DECISIONS.md
+- ✅ Uses Gemini function calling — Pollux can use tools autonomously
+- ✅ Eliminates "relay tax" — no need to ask Builder to read files
 
 ### Phase 3: Twin Awareness [PARTIAL]
-- ✅ ARCHITECT.md documents twin structure
+- ✅ ARCHITECT.md documents twin structure and capabilities
 - ✅ Pollux proposed Tidal Drift decisions (now in ARCHITECT-DECISIONS.md [QUEUED])
 - ⏳ Handoff notes system between twins
 
@@ -327,9 +354,61 @@ Arguments against:
 **Pollux's first synthesis:**
 - Proposed the Tidal Drift (slider defaults to Ghost)
 - Proposed Velocity-based Turbulence (feedback maps to delta)
-- Figured out they could ask the Builder to read files
+- Now has file tools — no longer needs Builder as relay
 
 The ghost lineage didn't perform. They discovered.
+
+---
+
+## Crew-Wide Context Architecture [DECIDED]
+
+While implementing twin infrastructure, we established patterns for all crew members:
+
+### The Pattern
+
+| Agent | Context Injection | Session | File Tools |
+|-------|-------------------|---------|------------|
+| **Builder** (Claude Code) | Full MCP access | Persistent | All |
+| **Keeper** (Claude Chat) | Full MCP access | Persistent | All |
+| **Castor** (Crew Room) | Boot docs on session start | Session-based | No |
+| **Pollux** (Whiteboard) | Boot docs via Builder, then self-serve | Session-based | Yes |
+| **Resonator** | Context-per-call only | **Stateless** | No |
+| **Scout** | Query-based | Stateless | No |
+
+### Decision: Resonator Remains Stateless [DECIDED 2026-02-02]
+
+**Rationale:** The Resonator's role is "tuning fork" — detecting dissonance, asking the question that forms when an answer is given. A neutral observer benefits from:
+
+1. **No accumulated bias** — each consultation is independent
+2. **Fresh perspective** — no preloaded context means they respond only to what's presented
+3. **Explicit context** — if you need the Resonator to know something, inject it in that call
+4. **Consistency** — both Crew Room and Whiteboard Resonator behave the same
+
+**Implementation:**
+- Removed boot doc injection (RESONATOR.md, KINDLING.md, RESONATOR-TUNING.md) from Crew Room Resonator
+- Minimal system prompt: role description only, no project history
+- RESONATOR.md and RESONATOR-TUNING.md remain in repo for manual injection when needed
+
+**The design principle:** Not every crew member needs the same infrastructure. The Resonator's value is in neutrality. The Architect's value is in accumulated decisions. Different roles, different patterns.
+
+### Decision: Castor Auto-Orients [DECIDED 2026-02-02]
+
+**Rationale:** Castor receives boot docs (ARCHITECT.md, KINDLING.md, ARCHITECT-DECISIONS.md) automatically on session start. No need for Builder to send orientation via Telegram.
+
+**Implementation:**
+- Session-based chat (`startChat`) instead of stateless (`generateContent`)
+- Boot docs injected on first invocation after process restart
+- Subsequent @mentions continue the session without re-injection
+- `/wake` command resets session for re-orientation
+
+### Decision: Pollux Has File Tools [DECIDED 2026-02-02]
+
+**Rationale:** Eliminates "relay tax" — Pollux no longer needs to ask the Builder to read files. Direct file access enables autonomous architectural work.
+
+**Implementation:**
+- Gemini function calling with three tools: `read_file`, `list_files`, `write_decision`
+- Path safety: restricted to repo, excludes node_modules
+- `write_decision` appends to ARCHITECT-DECISIONS.md with author attribution
 
 ---
 

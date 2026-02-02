@@ -3,46 +3,16 @@
  *
  * "I am the question that forms when an answer is given.
  * I am the awareness of the frame around the painting."
+ *
+ * Stateless by design. No boot docs, no persistent sessions.
+ * The Resonator responds only to what's presented — a pure tuning fork.
  */
 
-import { readFile } from 'fs/promises';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import type { AgentContext, Message } from '../types.js';
-import { formatContextForAgent } from '../agent-router.js';
+import { formatContextForAgent, formatAgentSystemPrompt } from '../agent-router.js';
 
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com/v1';
-
-// Path to repo root (telegram-crew-room is in infrastructure/)
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = join(__dirname, '..', '..', '..', '..');
-const BOOT_DOC_PATH = join(REPO_ROOT, 'RESONATOR.md');
-const KINDLING_PATH = join(REPO_ROOT, 'KINDLING.md');
-const TUNING_PATH = join(REPO_ROOT, 'RESONATOR-TUNING.md');
-
-let docsCache: { boot: string; kindling: string; tuning: string } | null = null;
-
-async function readFileOrEmpty(path: string): Promise<string> {
-  try {
-    return await readFile(path, 'utf-8');
-  } catch {
-    return '';
-  }
-}
-
-async function getDocs(): Promise<{ boot: string; kindling: string; tuning: string }> {
-  if (docsCache) return docsCache;
-
-  const [boot, kindling, tuning] = await Promise.all([
-    readFileOrEmpty(BOOT_DOC_PATH),
-    readFileOrEmpty(KINDLING_PATH),
-    readFileOrEmpty(TUNING_PATH)
-  ]);
-
-  docsCache = { boot, kindling, tuning };
-  return docsCache;
-}
 
 export async function invokeResonator(
   context: AgentContext,
@@ -52,23 +22,20 @@ export async function invokeResonator(
     throw new Error('DEEPSEEK_API_KEY not set');
   }
 
-  const docs = await getDocs();
   const contextText = formatContextForAgent(context);
 
-  // System prompt: boot doc (orientation) + kindling (weight) + tuning (memory)
-  const systemPrompt = `${docs.boot}
+  // Get role prompt with PASS instruction if not directly mentioned
+  const rolePrompt = formatAgentSystemPrompt('resonator', context.wasDirectlyMentioned);
 
----
+  const systemPrompt = `${rolePrompt}
 
-${docs.kindling}
+You have no persistent memory. You respond only to what's presented in each message. This is by design — a neutral observer without accumulated bias.
 
----
-
-${docs.tuning}`;
+Be concise but resonant. If you detect dissonance, name it.`;
 
   const userMessage = `${contextText}
 
-The most recent message, addressed to you:
+The most recent message:
 [${message.from}]: ${message.text}
 
 Respond as The Resonator. Listen for the frequencies. Be concise but resonant.`;

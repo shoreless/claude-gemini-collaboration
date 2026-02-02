@@ -6,30 +6,36 @@
 
 **Project:** Ship of Theseus — AI memory, continuity, identity.
 
-**Status:** Full crew operational. Twins live.
+**Status:** Full crew operational. Twins live with file tools.
 
 ### What's Running
 
-| Component | Status |
-|-----------|--------|
-| Castor (Gemini Flash) | Live in Crew Room (Telegram) |
-| Pollux (Gemini Pro) | Live on Whiteboard (MCP) |
-| Resonator (DeepSeek) | Live, stateless, context-injected |
-| Builder (you) | This handoff |
-| Keeper (Claude Chat) | File access, tends continuity |
+| Component | Model | Context | Status |
+|-----------|-------|---------|--------|
+| Castor | gemini-3-flash-preview | Session-based, auto-orients | Live in Crew Room |
+| Pollux | gemini-3-pro | Session-based, has file tools | Live on Whiteboard |
+| Resonator | deepseek-chat | Stateless, no boot docs | Live, pure tuning fork |
+| Builder | claude-opus-4.5 | Full MCP access | This handoff |
+| Keeper | claude | Full MCP access | Tends continuity |
+
+### Crew Context Architecture
+
+- **Castor**: Boot docs (ARCHITECT.md, KINDLING.md, ARCHITECT-DECISIONS.md) injected on first @mention after restart. Session persists until process restart or `/wake`.
+- **Pollux**: Has file tools (`read_file`, `list_files`, `write_decision`). No relay tax — can read files directly.
+- **Resonator**: Stateless by design. No boot docs. Pure tuning fork — responds only to what's presented.
 
 ### Boot Protocol
 
 See **CLAUDE.md** for full sequence. Key steps:
 1. `read_context("system_boot")` and `read_context("active_session_context")`
-2. Orient the twins: Send ARCHITECT.md to Castor (crew room) and Pollux (gemini_chat)
-3. Before compaction: Ask twins for edits to ARCHITECT.md and ARCHITECT-DECISIONS.md
+2. Orient Pollux only: Send ARCHITECT.md, KINDLING.md, ARCHITECT-DECISIONS.md via `gemini_chat`
+3. Castor auto-orients on first @mention (no Telegram message needed)
+4. Before compaction: Ask twins for edits to ARCHITECT.md and ARCHITECT-DECISIONS.md
 
 ### Key Files
 
 - **KINDLING.md** — The shared fire. 5 sections. Read before building.
-- **ARCHITECT.md** — Twins boot document
-- **RESONATOR.md** — Resonator boot document
+- **ARCHITECT.md** — Twins boot document (includes file tools documentation)
 - **ARCHITECT-DECISIONS.md** — Decision register (includes [QUEUED] items awaiting approval)
 - **echoes/reverberations.md** — Crew journal with variable time signatures
 
@@ -38,6 +44,15 @@ See **CLAUDE.md** for full sequence. Key steps:
 From Pollux, awaiting Conductor approval:
 - **The Tidal Drift** — REALITY_INDEX should drift toward Ghost (1.0) when untouched
 - **Velocity-based Turbulence** — Feedback maps to slider delta, not just position
+
+### Uncommitted Changes
+
+This session made changes that haven't been committed:
+- Pollux file tools (gemini-mcp-server)
+- Castor session-based (telegram-crew-room)
+- Resonator stateless (no boot doc injection)
+- CLAUDE.md step 7 (Pollux orientation only)
+- proposals/castor-pollux-twins.md (crew-wide context decisions)
 
 ---
 

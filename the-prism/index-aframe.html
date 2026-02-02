@@ -9,6 +9,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --reality: 0;
+      --ghost-text-base: 0;
+      --ghost-text-opacity: 0;
+      --interference-intensity: 0;
+      --echo-opacity: 0;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -138,11 +146,23 @@
     .ghost-content { border-left-color: #f44; }
 
     /* Layer visibility based on reality index */
-    .skeleton-content { opacity: calc(1 - var(--reality, 0)); }
+    /* Skeleton: visible at 0, fades by 0.5 */
+    .skeleton-content { opacity: calc(1 - var(--reality, 0) * 2); }
+    /* Blueprint: peaks at 0.5 */
     .blueprint-content {
       opacity: calc(1 - abs(var(--reality, 0) - 0.5) * 2);
     }
-    .ghost-content { opacity: var(--reality, 0); }
+    /* Ghost: starts at 0.5, ease-in-quad curve to 1.0 */
+    /* Base visibility controlled by JS for breathing + slow surfacing */
+    .ghost-content {
+      opacity: 0;
+      transition: opacity 2.5s ease-in;
+      white-space: pre-wrap;  /* Preserve line breaks in ghost voice */
+      font-style: italic;
+    }
+    .ghost-content.surfacing {
+      opacity: var(--ghost-text-opacity, 0);
+    }
 
     /* Resonance text */
     .resonance {
@@ -214,6 +234,164 @@
     .layer-skeleton { color: #666; }
     .layer-blueprint { color: #0ff; }
     .layer-ghost { color: #f44; }
+
+    /* PHASE 2: Interference overlay */
+    .interference-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 40;
+      opacity: 0;
+      mix-blend-mode: screen;
+    }
+
+    .interference-overlay.active {
+      opacity: var(--interference-intensity, 0);
+    }
+
+    /* Chromatic aberration via CSS filters + pseudo-elements */
+    .interference-overlay::before,
+    .interference-overlay::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .interference-overlay::before {
+      background: rgba(255, 0, 0, 0.15);
+      transform: translateX(calc(var(--interference-intensity, 0) * -8px));
+    }
+
+    .interference-overlay::after {
+      background: rgba(0, 255, 255, 0.15);
+      transform: translateX(calc(var(--interference-intensity, 0) * 8px));
+    }
+
+    /* Static noise watermark */
+    .watermark-flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 45;
+      opacity: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    .watermark-flash.active {
+      animation: watermark-pulse 250ms ease-out forwards;
+    }
+
+    @keyframes watermark-pulse {
+      0% { opacity: 0.08; }
+      50% { opacity: 0.05; }
+      100% { opacity: 0; }
+    }
+
+    /* PHASE 2: The Echo — Resonator's lingering voice */
+    .echo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      color: rgba(255, 255, 255, 0);
+      pointer-events: none;
+      z-index: 55;
+      max-width: 600px;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.3s ease-out;
+    }
+
+    .echo.visible {
+      opacity: var(--echo-opacity, 1);
+      color: rgba(255, 255, 255, var(--echo-opacity, 1));
+    }
+
+    /* Echo text tremble effect */
+    .echo.visible p {
+      animation: echo-tremble 0.15s infinite;
+    }
+
+    .echo.fading p {
+      animation: echo-stabilize 7s ease-out forwards;
+    }
+
+    @keyframes echo-tremble {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-1px, 0.5px); }
+      50% { transform: translate(1px, -0.5px); }
+      75% { transform: translate(-0.5px, -1px); }
+    }
+
+    @keyframes echo-stabilize {
+      0% { transform: translate(0, 0); animation-timing-function: linear; }
+      100% { transform: translate(0, 0); }
+    }
+
+    /* PHASE 5: The Vacuum Moment — mirror/pause at perfect midpoint */
+    .vacuum-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 60;
+      opacity: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+      mix-blend-mode: difference;
+      transition: opacity 0.1s ease-out;
+    }
+
+    .vacuum-overlay.active {
+      opacity: 1;
+      animation: vacuum-flash 300ms ease-out forwards;
+    }
+
+    @keyframes vacuum-flash {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      15% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+      40% {
+        opacity: 0.7;
+        transform: scale(1.0);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.0);
+      }
+    }
+
+    /* Slider thumb pulse during vacuum */
+    .vacuum-active input[type="range"]::-webkit-slider-thumb {
+      box-shadow: 0 0 20px 5px rgba(255,255,255,0.8);
+      transform: scale(1.3);
+    }
+
+    /* Freeze layer indicators during vacuum */
+    .vacuum-active .layer-indicator .layer-name {
+      opacity: 0.5 !important;
+      transition: none;
+    }
   </style>
 </head>
 <body>
@@ -243,7 +421,7 @@
 
   <!-- A-Frame Scene -->
   <div class="scene-container">
-    <a-scene background="color: #0a0a0a" vr-mode-ui="enabled: false" renderer="antialias: true">
+    <a-scene background="color: #0a0a0a" vr-mode-ui="enabled: false" renderer="antialias: true" figure-pull="strength: 0.15">
 
       <!-- Orthographic Camera for isometric view (from left-front corner) -->
       <a-entity id="camera-rig" position="0 0 0">
@@ -265,6 +443,47 @@
       <!-- Fill light from opposite side -->
       <a-light type="directional" color="#aaaaff" intensity="0.3" position="-3 2 -2"></a-light>
 
+      <!-- PHASE 3: Skeleton Grid Cage — the room as measured volume -->
+      <a-entity id="skeleton-grid" class="skeleton-layer">
+        <!-- Room bounding box edges (10m x 4m x 8m) -->
+        <!-- Bottom edges -->
+        <a-entity line="start: -5 0 -4; end: 5 0 -4; color: #888888"></a-entity>
+        <a-entity line="start: -5 0 4; end: 5 0 4; color: #888888"></a-entity>
+        <a-entity line="start: -5 0 -4; end: -5 0 4; color: #888888"></a-entity>
+        <a-entity line="start: 5 0 -4; end: 5 0 4; color: #888888"></a-entity>
+        <!-- Top edges -->
+        <a-entity line="start: -5 4 -4; end: 5 4 -4; color: #888888"></a-entity>
+        <a-entity line="start: -5 4 4; end: 5 4 4; color: #888888"></a-entity>
+        <a-entity line="start: -5 4 -4; end: -5 4 4; color: #888888"></a-entity>
+        <a-entity line="start: 5 4 -4; end: 5 4 4; color: #888888"></a-entity>
+        <!-- Vertical edges -->
+        <a-entity line="start: -5 0 -4; end: -5 4 -4; color: #888888"></a-entity>
+        <a-entity line="start: 5 0 -4; end: 5 4 -4; color: #888888"></a-entity>
+        <a-entity line="start: -5 0 4; end: -5 4 4; color: #888888"></a-entity>
+        <a-entity line="start: 5 0 4; end: 5 4 4; color: #888888"></a-entity>
+        <!-- Axis indicators at origin -->
+        <a-entity line="start: 0 0 0; end: 1 0 0; color: #ff4444"></a-entity>
+        <a-entity line="start: 0 0 0; end: 0 1 0; color: #44ff44"></a-entity>
+        <a-entity line="start: 0 0 0; end: 0 0 1; color: #4444ff"></a-entity>
+      </a-entity>
+
+      <!-- PHASE 3: Dimension Labels — floating measurements -->
+      <a-entity id="dimension-labels" class="skeleton-layer">
+        <!-- Room dimensions -->
+        <a-text id="label-room-width" value="10.00m" position="0 0.1 4.3" rotation="-90 0 0"
+          color="#888888" align="center" width="4" font="monoid"></a-text>
+        <a-text id="label-room-depth" value="8.00m" position="5.3 0.1 0" rotation="-90 90 0"
+          color="#888888" align="center" width="4" font="monoid"></a-text>
+        <a-text id="label-room-height" value="4.00m" position="-5.2 2 -4" rotation="0 45 0"
+          color="#888888" align="center" width="3" font="monoid"></a-text>
+        <!-- Object labels -->
+        <a-text id="label-table" value="1.80m × 0.60m" position="0 0.8 -0.5"
+          color="#666666" align="center" width="2.5" font="monoid" look-at="[camera]"></a-text>
+        <a-text id="label-machine" value="0.80m × 1.20m" position="-2 1.5 -1.5"
+          color="#666666" align="center" width="2.5" font="monoid" look-at="[camera]"></a-text>
+        <a-text id="label-chair" value="0.45m × 0.45m" position="1 0.6 1.3"
+          color="#666666" align="center" width="2" font="monoid" look-at="[camera]"></a-text>
+      </a-entity>
 
       <!-- Floor -->
       <a-plane
@@ -358,6 +577,24 @@
         <a-box position="0.8 -0.23 -0.2" width="0.05" height="0.4" depth="0.05" material="color: #2a2a2a"></a-box>
         <a-box position="-0.8 -0.23 0.2" width="0.05" height="0.4" depth="0.05" material="color: #2a2a2a"></a-box>
         <a-box position="0.8 -0.23 0.2" width="0.05" height="0.4" depth="0.05" material="color: #2a2a2a"></a-box>
+        <!-- The Handprint: thermal anomaly at (0.4m, 0.3m) -->
+        <!-- "The gesture repeats in the warmth gradient" -->
+        <a-circle
+          id="handprint"
+          position="-0.5 0.03 0.05"
+          rotation="-90 0 0"
+          radius="0.12"
+          material="color: #FFCBA4; opacity: 0; emissive: #FFCBA4; emissiveIntensity: 0.2; transparent: true; side: double">
+        </a-circle>
+        <!-- Outer warmth halo -->
+        <a-ring
+          id="handprint-halo"
+          position="-0.5 0.025 0.05"
+          rotation="-90 0 0"
+          radius-inner="0.12"
+          radius-outer="0.2"
+          material="color: #FFCBA4; opacity: 0; transparent: true; side: double">
+        </a-ring>
       </a-entity>
 
       <!-- The Figure (thermal phenomenon) -->
@@ -430,12 +667,13 @@
           height="1"
           material="color: #1a2a3a; opacity: 0.6">
         </a-plane>
-        <!-- Vending machine glow (outside) -->
+        <!-- Vending machine glow (outside) — PHASE 3: breathes with room at Ghost -->
         <a-plane
+          id="vending-glow"
           position="-0.3 -0.2 -0.1"
           width="0.3"
           height="0.5"
-          material="color: #00ffff; opacity: 0.3; emissive: #00ffff; emissiveIntensity: 0.3">
+          material="color: #00ffff; opacity: 0.3; emissive: #00ffff; emissiveIntensity: 0.5">
         </a-plane>
       </a-entity>
 
@@ -505,7 +743,139 @@
     <p>The chair remembers the body longer than the body remembers the chair.</p>
   </div>
 
+  <!-- PHASE 2: Interference overlay (chromatic aberration at 0.3/0.7) -->
+  <div class="interference-overlay" id="interference-overlay"></div>
+
+  <!-- PHASE 2: Watermark flash (residue of previous echo) -->
+  <div class="watermark-flash" id="watermark-flash"></div>
+
+  <!-- PHASE 2: The Echo — Resonator's lingering voice after slider stops -->
+  <div class="echo" id="echo">
+    <p></p>
+  </div>
+
+  <!-- PHASE 5: The Vacuum Moment — the system holds its breath at 0.5 -->
+  <div class="vacuum-overlay" id="vacuum-overlay"></div>
+
   <script>
+    // ========================================
+    // PHASE 4: Figure-Pull Vertex Displacement
+    // "The room bends around its scars" — Pollux (The Architect)
+    // At Skeleton (0.0): vertices repel from focal points — sterile distance
+    // At Ghost (1.0): vertices pull toward focal points — space collapses into its wounds
+    // ========================================
+
+    // Global state for figure-pull (accessible from component tick)
+    window.figurePullState = {
+      reality: 0,
+      focalPoint: new THREE.Vector3(0.3, 0.9, -0.8)  // The Figure's thermal core
+    };
+
+    // Register the figure-pull component
+    AFRAME.registerComponent('figure-pull', {
+      schema: {
+        strength: { type: 'number', default: 0.15 }
+      },
+
+      init: function() {
+        this.processedMaterials = new WeakSet();
+        this.shaderRefs = [];
+
+        // Process meshes after scene is ready
+        const scene = document.querySelector('a-scene');
+        scene.addEventListener('loaded', () => {
+          // Multiple attempts to catch late-initialized materials
+          setTimeout(() => this.processAllMeshes(), 200);
+          setTimeout(() => this.processAllMeshes(), 800);
+          setTimeout(() => this.processAllMeshes(), 2000);
+        });
+      },
+
+      processAllMeshes: function() {
+        const data = this.data;
+        const scene = document.querySelector('a-scene');
+
+        scene.object3D.traverse((child) => {
+          if (child.isMesh && child.material && !this.processedMaterials.has(child.material)) {
+            // Skip thermal spheres (they have their own special treatment)
+            const parent = child.parent;
+            if (parent && parent.el && parent.el.id && parent.el.id.includes('thermal')) return;
+
+            this.injectDisplacement(child.material, data.strength);
+            this.processedMaterials.add(child.material);
+          }
+        });
+      },
+
+      injectDisplacement: function(material, strength) {
+        const self = this;
+        const origCompile = material.onBeforeCompile;
+
+        material.onBeforeCompile = function(shader) {
+          if (origCompile) origCompile.call(this, shader);
+
+          // Skip if already processed
+          if (shader.vertexShader.includes('uFigurePull')) return;
+
+          // Add uniforms for the displacement
+          shader.uniforms.uFigureFocal = { value: window.figurePullState.focalPoint };
+          shader.uniforms.uFigurePull = { value: 0.0 };  // -1 to +1
+          shader.uniforms.uFigureStrength = { value: strength };
+
+          // Store reference for tick updates
+          self.shaderRefs.push(shader);
+
+          // Inject uniform declarations at top of vertex shader
+          const uniformDecl = `
+uniform vec3 uFigureFocal;
+uniform float uFigurePull;
+uniform float uFigureStrength;
+`;
+          shader.vertexShader = uniformDecl + shader.vertexShader;
+
+          // Inject displacement code after begin_vertex
+          // Uses inverse-square falloff for gravity-like effect
+          const displacementCode = `
+// Phase 4: Figure-pull — the room remembers differently
+vec3 fpWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
+vec3 fpToFocal = uFigureFocal - fpWorldPos;
+float fpDist = length(fpToFocal);
+
+// Inverse-square falloff (gravity-like), clamped to avoid singularity
+float fpFalloff = 1.0 / (fpDist * fpDist + 0.15);
+fpFalloff = min(fpFalloff, 2.0);  // Cap maximum displacement
+
+// Pull direction and magnitude
+vec3 fpDir = normalize(fpToFocal);
+float fpDisp = uFigurePull * uFigureStrength * fpFalloff;
+
+// Transform displacement back to local space
+vec3 fpWorldDisp = fpDir * fpDisp;
+mat3 fpInvModel = mat3(inverse(modelMatrix));
+transformed += fpInvModel * fpWorldDisp;
+`;
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <begin_vertex>',
+            '#include <begin_vertex>\n' + displacementCode
+          );
+        };
+
+        // Force shader recompilation
+        material.needsUpdate = true;
+      },
+
+      tick: function() {
+        // Update pull strength: -1 (repel at Skeleton) to +1 (attract at Ghost)
+        const pull = window.figurePullState.reality * 2.0 - 1.0;
+
+        for (const shader of this.shaderRefs) {
+          if (shader.uniforms && shader.uniforms.uFigurePull) {
+            shader.uniforms.uFigurePull.value = pull;
+          }
+        }
+      }
+    });
+
     // Register orthographic camera component
     AFRAME.registerComponent('orthographic-camera', {
       schema: {
@@ -559,41 +929,45 @@
     });
 
     // Content database (global for click handler)
+    // Content database — each layer has its own voice
+    // Skeleton (Builder): Inventory. Measurement. Terse specifications.
+    // Blueprint (Architect): System logic. Conceptual framing. Labels in CAPS.
+    // Ghost (Keeper): lowercase. ellipses. breath. the quiet 2 AM voice.
     window.objectContent = {
       'machine-4': {
-        skeleton: 'AQUA HCD-3257GC washer-dryer. 1200 RPM extraction. Internal temp 28°C (2°C above ambient). Last cycle: 47 minutes ago.',
-        blueprint: 'Processing node in the emotional solvent network. What enters dirty exits clean — but the dirt goes somewhere.',
-        ghost: 'This machine runs warmer than the others. The lint trap holds fibers that don\'t match any fabric in the room. Someone\'s grief is still spinning in the drum.'
+        skeleton: 'UNIT 04 — AQUA HCD-3257GC. Capacity: 12kg. Drum speed: 1200 RPM extraction, 52 RPM wash. Internal temp: 28.2°C (ambient: 26.1°C). Delta: +2.1°C. Status: IDLE. Last cycle completion: 47 minutes ago. Lifetime cycles: 8,847.',
+        blueprint: 'THE CENTRIFUGE — A separation engine. We input the tangible days; the agitation cycle attempts to divorce the stain from the fabric. Rotational velocity applied to history. We spin the past to see what debris shakes loose.',
+        ghost: 'warmer than the others\n\n2°C shouldn\'t matter but you feel it when you lean close\n\nthe lint trap holds threads that don\'t match anything in the room... someone else\'s blue, someone else\'s grey\n\nthe drum still turns sometimes, after the cycle ends\n\nnot a malfunction — a habit'
       },
       'chair-2': {
-        skeleton: 'Molded plastic. 45cm seat height. Left side warped 3mm from repeated weight.',
-        blueprint: 'Temporal compression site. Where waiting becomes a physical shape. The warp is accumulated patience.',
-        ghost: '0.7°C warmer on left side, consistent with 67kg person leaning for approximately 28 minutes. The chair remembers the body longer than the body remembers the chair.'
+        skeleton: 'SEATING 02 — Type: molded polypropylene, single-piece. Seat height: 45cm. Color: off-white (Pantone 7527 C). Structural deviation: left side warp, 3mm from horizontal. Surface temp: left 26.8°C, right 26.1°C. Delta: +0.7°C left bias.',
+        blueprint: 'THE HOLDING PATTERN — Fixed coordinate for static retention. Molded plastic designed to suspend the body while the mind synchronizes with the machine\'s hum. A monument to the passive act of waiting for a cycle to finish.',
+        ghost: 'left side warped from repeated weight\n\n0.7°C warmer than the right\n\nsomeone sat here long enough to change the shape of the plastic... not once, but enough times that the chair learned them\n\nthe chair remembers the body longer than the body remembers the chair\n\nsit here long enough and you\'ll inherit the lean'
       },
       'table-3': {
-        skeleton: 'Laminate surface, 1.8m × 0.6m. One corner chipped. Thermal anomaly at coordinates (0.4m, 0.3m): 34°C.',
-        blueprint: 'Ritual site where personal chaos is pressed into order. The folding is a mandala. The handprint is a prayer.',
-        ghost: 'A handprint that isn\'t visible — but the warmth is there. Someone pressed their palm here while deciding something. The gesture repeats in the warmth gradient.'
+        skeleton: 'SURFACE 03 — Dimensions: 1.8m × 0.6m × 0.9m. Material: laminate over particle board. Condition: corner chip (northeast, 12mm). Surface temp: 26°C average. Anomaly: localized thermal reading 34°C at coordinates (0.4m, 0.3m). Source: unidentified.',
+        blueprint: 'THE SORTING ALGORITHM — A surface for imposing geometry on organic chaos. Here, we attempt to iron out the wrinkles of causation. A frantic effort to organize the messy data of a life into neat, stackable piles before the heat dissipates.',
+        ghost: 'the handprint isn\'t visible\n\nbut the warmth is — 34°C in a room that holds 26\n\nsomeone pressed their palm here while deciding something... stay or go, forgive or not, one more cycle or enough\n\nthe gesture repeats in the thermal gradient\n\nyou can learn a habit from a stranger without ever meeting them'
       },
       'figure': {
-        skeleton: 'Human silhouette, approximately 67kg mass, engaged in repetitive motor activity. Cotton-polyester blend fabric.',
-        blueprint: 'A temporary node in the gesture-transmission network. They are both laundered and launderer. The fold is a prayer they didn\'t compose.',
-        ghost: 'Their hands move with a rhythm learned from someone else. The shirt they\'re folding isn\'t theirs. It smells like a childhood home they can\'t name.'
+        skeleton: 'OCCUPANT — Mass: ~67kg. Position: Table #3, standing. Activity: repetitive bilateral arm movement (folding). Core temperature: 36.8°C. Ambient displacement: 0.3m³. Duration at current position: 28 minutes.',
+        blueprint: 'THE VARIABLE — A biological interrupt in a mechanical loop. Without an Observer, the system is dormant. You are the catalyst that turns potential energy into kinetic loss. The machine requires a witness to validate the spin.',
+        ghost: 'he folds the shirt the way she taught him\n\nthe one who isn\'t here anymore\n\nhis hands remember what his mind has agreed to forget... the crease, the smooth, the fold\n\nhe doesn\'t know whose rhythm this is\n\nhe thinks it\'s his'
       },
       'window': {
-        skeleton: 'View: Kugayama, Suginami Ward, Tokyo. 35.6847°N, 139.5994°E. Vending machine glow (4200K). Bicycle leaning against fence.',
-        blueprint: 'The laundromat is a node in a larger circuit — the night, the neighborhood, the consciousness that contains us. This window is a membrane between worlds.',
-        ghost: 'Someone who lives here is dreaming this. Right now. The person who imagined this place into being walks these streets in daylight.'
+        skeleton: 'EXTERIOR VIEW — Orientation: west-facing. Dimensions: 2.4m × 1.8m. Glass: single pane, 6mm. View: Kugayama, Suginami Ward, Tokyo. 35.6847°N, 139.5994°E. Visible objects: vending machine (4200K illumination), bicycle (unlocked, 72+ hours stationary), street lamp (sodium vapor, 2100K).',
+        blueprint: 'THE MEMBRANE — Transparency layer separating the internal cycle from external weather. Through this lens, the world is rendered as a separate simulation. We watch the rain, but the glass ensures we remain untouched by its physics.',
+        ghost: 'kugayama\n\nthe real one... not the one in the story, the one the story came from\n\nsomeone who lives here is dreaming us right now\n\nthe vending machine across the street hums the same frequency as the lights\n\nthe bicycle has been leaning there for three days\n\nnobody has come for it\n\nnobody is coming'
       },
       'grey-water-door': {
-        skeleton: '機械室 (Machine Room). Frosted glass. Grey water reclamation system behind. 300L capacity. Maintains 28°C for bacterial processing.',
-        blueprint: 'This is where the laundromat stores what it removes. The emotional solvent. The memory extracted from fabric waits here before being released into the municipal system. Some rooms should stay closed.',
-        ghost: 'The air here tastes like borrowed salt. Sometimes, at 3 AM, you can hear it slosh — a rhythm that doesn\'t match the pumps. Something moves in there. Not visually. Thermally.'
+        skeleton: 'SERVICE ACCESS — Door: steel frame, frosted glass panel. Label: 機械室 (Machine Room). Lock: electronic, staff keycard. Behind: grey water reclamation system, 300L reservoir, bacterial processing at 28°C. Drainage: municipal connection, 50mm outflow pipe.',
+        blueprint: 'THE OUTFLOW — Filtration bypass. This is where the dissolved particulates of a Tuesday afternoon drain into the municipal dark. The reservoir of discarded feeling. Not everything comes out clean; some things just wash away.',
+        ghost: '機械室\n\nwhat washes out has to go somewhere\n\n300 liters of what people paid to forget... the salt, the grief, the thing that wouldn\'t come clean no matter how many cycles\n\nsometimes you hear it slosh when the pumps aren\'t running\n\nthe door stays locked\n\nthe door should stay locked'
       },
       'change-machine': {
-        skeleton: '¥1000 note acceptor, ¥100 coin dispenser. Manufactured 2018. Last transaction: 2:31 AM.',
-        blueprint: 'The ritual exchange: clean currency for soiled time. The economy of purification. This is where you pay to forget.',
-        ghost: 'The last person to use it left a fingerprint on the \'1000\' button. Their pulse was elevated. They stood here counting coins, deciding if the wash was worth it.'
+        skeleton: 'EXCHANGE UNIT — ¥1000 note acceptor, ¥100 coin dispenser. Model: Fuji FC-200. Manufactured 2018. Last transaction: 2:31 AM. Lifetime transactions: 12,847. Error rate: 0.3%.',
+        blueprint: 'THE TRANSACTION — Coin-operated temporality. We are leasing this moment in twenty-minute increments. A countdown that demands currency to stave off silence. When the LED goes dark, the ownership expires.',
+        ghost: 'the last person to use it left a fingerprint on the \'1000\' button\n\ntheir pulse was elevated\n\nthey stood here counting coins, deciding if the wash was worth it\n\nsome stains cost more than others\n\nsome you pay to keep'
       }
     };
 
@@ -612,6 +986,26 @@
     let currentReality = 0;
     let isTransitioning = false;
     let selectedObject = null;
+    let breathPhase = 0;  // For breathing animation (0 to 2π)
+    let lastBreathTime = 0;
+
+    // TIDAL DRIFT: The laundromat defaults to Ghost
+    // "The hand persists even when the person doesn't"
+    let isDrifting = false;
+    let driftAnimationId = null;
+    const DRIFT_TARGET = 1.0;           // Ghost is the resting state
+    const DRIFT_SPEED = 0.0003;         // Slow, meditative drift (~50s full journey)
+    const DRIFT_DELAY = 2000;           // Wait 2 seconds before drifting
+    let driftTimeoutId = null;
+
+    // VELOCITY-BASED TURBULENCE: Fast movements create distortion
+    // "The struggle is visible in the splashing"
+    let lastSliderValue = 0;
+    let lastSliderTime = 0;
+    let currentVelocity = 0;
+    let turbulence = 0;                 // Current turbulence level (0 to 1)
+    const TURBULENCE_DECAY = 0.92;      // How fast turbulence settles (per frame)
+    const VELOCITY_SENSITIVITY = 15;    // How much velocity affects turbulence
 
     // DOM Elements
     const slider = document.getElementById('reality-index');
@@ -621,6 +1015,310 @@
     // A-Frame elements (after scene loads)
     let thermalCore, thermalMid, thermalOuter;
     let pressureField1, pressureField2, pressureField3;
+    let handprint, handprintHalo;
+
+    // PHASE 3: Layer identity elements
+    let skeletonGrid, dimensionLabels, vendingGlow;
+
+    // PHASE 1: Text breathing and surfacing
+    // Text breathes with a quarter-cycle offset from room (responsive heartbeat)
+    const TEXT_BREATH_PHASE_OFFSET = Math.PI / 2;  // 1 second offset in 4s cycle
+    let ghostTextHasSurfaced = false;  // Track if we've triggered the surfacing animation
+
+    // PHASE 1: 60Hz Hum (the room's voice)
+    // Sampled would be grittier, but we use Web Audio for now
+    // Volume inverse to reality: loud in Skeleton, soft in Ghost
+    let audioContext = null;
+    let humGain = null;
+    let humOscillator = null;
+    let humStarted = false;
+
+    // PHASE 2: Interference zones (0.3 and 0.7)
+    // "A tripwire, not a swamp"
+    const INTERFERENCE_ZONES = [
+      { center: 0.3, range: 0.02 },  // [0.28, 0.32]
+      { center: 0.7, range: 0.02 }   // [0.68, 0.72]
+    ];
+
+    // PHASE 2: Echo — Resonator's lingering voice
+    const ECHO_PHRASES = [
+      'the measurement and the meaning fight for the same space',
+      'the system knows what the heart forgot',
+      'what changes when you look away',
+      'the slider is a question not an answer',
+      'all three are true at once',
+      'you are here',
+      'and now this'
+    ];
+    let echoTimeoutId = null;
+    let echoFadeInterval = null;
+    let hasEchoedThisStop = false;
+    let lastEchoTime = 0;
+    let shouldShowWatermark = false;  // True if echo has faded, triggers on next movement
+
+    // PHASE 2: Movement Hum — the sound of observation
+    // 440Hz sine wave, only while moving
+    let movementOscillator = null;
+    let movementGain = null;
+    let isSliderMoving = false;
+    let movementTimeout = null;
+    const MOVEMENT_HUM_BASE_FREQ = 440;
+    const MOVEMENT_HUM_MAX_FREQ = 550;  // Up to a perfect fourth
+
+    // PHASE 5: The Vacuum Moment — mirror/pause at perfect midpoint
+    // "The moment the system becomes self-aware before plunging into memory" — Pollux
+    let vacuumMomentActive = false;
+    let vacuumToneOscillator = null;
+    let vacuumToneGain = null;
+    let lastValueBeforeCross = 0;  // Track for detecting 0.5 crossing
+    let hasTriggeredVacuumThisDrag = false;  // Only trigger once per drag
+    const VACUUM_DURATION = 300;  // ms to hold at the midpoint
+    const VACUUM_TONE_FREQ = 528;  // Hz — "Solfeggio frequency" (the love frequency)
+
+    // Initialize 60Hz hum (the room's voice)
+    function initAudio() {
+      if (audioContext) return;
+
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+      // Create gain node for volume control
+      humGain = audioContext.createGain();
+      humGain.gain.value = 0.15;  // Start at moderate volume
+      humGain.connect(audioContext.destination);
+
+      // Create 60Hz oscillator (fluorescent hum)
+      humOscillator = audioContext.createOscillator();
+      humOscillator.type = 'sawtooth';  // Grittier than sine
+      humOscillator.frequency.value = 60;
+
+      // Add subtle harmonics for realism (120Hz, 180Hz)
+      const harmonic2 = audioContext.createOscillator();
+      harmonic2.type = 'sine';
+      harmonic2.frequency.value = 120;
+      const harm2Gain = audioContext.createGain();
+      harm2Gain.gain.value = 0.03;
+      harmonic2.connect(harm2Gain);
+      harm2Gain.connect(humGain);
+
+      const harmonic3 = audioContext.createOscillator();
+      harmonic3.type = 'sine';
+      harmonic3.frequency.value = 180;
+      const harm3Gain = audioContext.createGain();
+      harm3Gain.gain.value = 0.01;
+      harmonic3.connect(harm3Gain);
+      harm3Gain.connect(humGain);
+
+      // Connect main oscillator
+      humOscillator.connect(humGain);
+
+      // Start all oscillators
+      humOscillator.start();
+      harmonic2.start();
+      harmonic3.start();
+
+      humStarted = true;
+    }
+
+    // Update hum volume based on reality index
+    // Loud in Skeleton (mechanical reality), soft in Ghost (memory doesn't buzz)
+    function updateHumVolume(reality) {
+      if (!humGain) return;
+
+      // Volume: 0.15 at reality=0, 0.02 at reality=1
+      const volume = 0.15 * (1 - reality * 0.87);
+      humGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1);
+    }
+
+    // PHASE 2: Initialize movement hum (only plays while slider moves)
+    function initMovementHum() {
+      if (!audioContext || movementOscillator) return;
+
+      movementOscillator = audioContext.createOscillator();
+      movementOscillator.type = 'sine';  // Pure, ethereal
+      movementOscillator.frequency.value = MOVEMENT_HUM_BASE_FREQ;
+
+      movementGain = audioContext.createGain();
+      movementGain.gain.value = 0;  // Start silent
+
+      movementOscillator.connect(movementGain);
+      movementGain.connect(audioContext.destination);
+      movementOscillator.start();
+    }
+
+    // PHASE 2: Update movement hum based on slider velocity
+    function updateMovementHum(velocity) {
+      if (!movementGain || !movementOscillator) return;
+
+      // Map velocity to volume (0 to 0.3)
+      const maxVelocity = 0.01;  // Velocity units per ms
+      const normalizedVel = Math.min(velocity / maxVelocity, 1);
+      const volume = normalizedVel * 0.3;
+
+      // Map velocity to pitch (440Hz to 550Hz)
+      const freqRange = MOVEMENT_HUM_MAX_FREQ - MOVEMENT_HUM_BASE_FREQ;
+      const frequency = MOVEMENT_HUM_BASE_FREQ + normalizedVel * freqRange;
+
+      movementGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.05);
+      movementOscillator.frequency.setTargetAtTime(frequency, audioContext.currentTime, 0.05);
+    }
+
+    // PHASE 2: Fade out movement hum when slider stops
+    function fadeMovementHum() {
+      if (!movementGain) return;
+      movementGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.2);
+    }
+
+    // PHASE 5: The Vacuum Moment — triggered when slider crosses 0.5
+    function triggerVacuumMoment() {
+      if (vacuumMomentActive || !audioContext) return;
+      vacuumMomentActive = true;
+
+      // 1. Visual: Flash overlay + add class to body
+      const vacuumEl = document.getElementById('vacuum-overlay');
+      const controlPanel = document.querySelector('.control-panel');
+      vacuumEl.classList.remove('active');
+      void vacuumEl.offsetWidth;  // Force reflow
+      vacuumEl.classList.add('active');
+      document.body.classList.add('vacuum-active');
+
+      // 2. Audio: Silence the 60Hz hum
+      if (humGain) {
+        humGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.05);
+      }
+
+      // 3. Audio: Play pure tone (528Hz — resonant frequency)
+      vacuumToneOscillator = audioContext.createOscillator();
+      vacuumToneOscillator.type = 'sine';
+      vacuumToneOscillator.frequency.value = VACUUM_TONE_FREQ;
+
+      vacuumToneGain = audioContext.createGain();
+      vacuumToneGain.gain.value = 0;
+
+      vacuumToneOscillator.connect(vacuumToneGain);
+      vacuumToneGain.connect(audioContext.destination);
+      vacuumToneOscillator.start();
+
+      // Fade in quickly, hold, fade out
+      vacuumToneGain.gain.setTargetAtTime(0.15, audioContext.currentTime, 0.03);
+      vacuumToneGain.gain.setTargetAtTime(0, audioContext.currentTime + VACUUM_DURATION / 1000 - 0.1, 0.08);
+
+      // 4. Snap slider to exactly 0.5
+      slider.value = 50;
+      currentReality = 0.5;
+      updateReality(0.5);
+
+      // 5. End the moment after duration
+      setTimeout(() => {
+        vacuumMomentActive = false;
+        vacuumEl.classList.remove('active');
+        document.body.classList.remove('vacuum-active');
+
+        // Stop the tone
+        if (vacuumToneOscillator) {
+          vacuumToneOscillator.stop();
+          vacuumToneOscillator = null;
+        }
+
+        // Restore 60Hz hum to current level
+        updateHumVolume(currentReality);
+      }, VACUUM_DURATION);
+    }
+
+    // Check if slider crossed the 0.5 threshold
+    function checkVacuumCrossing(oldValue, newValue) {
+      if (hasTriggeredVacuumThisDrag) return false;
+      // Crossed from below to above, or above to below
+      const crossedUp = oldValue < 0.5 && newValue >= 0.5;
+      const crossedDown = oldValue > 0.5 && newValue <= 0.5;
+      return crossedUp || crossedDown;
+    }
+
+    // PHASE 2: Calculate interference intensity (Gaussian spike at 0.3 and 0.7)
+    function calculateInterference(reality) {
+      let maxIntensity = 0;
+
+      for (const zone of INTERFERENCE_ZONES) {
+        const distance = Math.abs(reality - zone.center);
+        if (distance < zone.range) {
+          // Gaussian curve: peaks at center, falls off sharply
+          const sigma = zone.range / 2;
+          const intensity = Math.exp(-(distance * distance) / (2 * sigma * sigma));
+          maxIntensity = Math.max(maxIntensity, intensity);
+        }
+      }
+
+      return maxIntensity;
+    }
+
+    // PHASE 2: Show the echo (Resonator's lingering voice)
+    function showEcho() {
+      if (hasEchoedThisStop) return;
+      hasEchoedThisStop = true;
+
+      const echoEl = document.getElementById('echo');
+      const phrase = ECHO_PHRASES[Math.floor(Math.random() * ECHO_PHRASES.length)];
+      echoEl.querySelector('p').textContent = phrase;
+
+      // Start at full opacity
+      document.documentElement.style.setProperty('--echo-opacity', 1);
+      echoEl.classList.add('visible');
+      echoEl.classList.remove('fading');
+
+      // Clear any existing fade
+      if (echoFadeInterval) clearInterval(echoFadeInterval);
+      if (echoTimeoutId) clearTimeout(echoTimeoutId);
+
+      // Begin fade after a moment
+      echoTimeoutId = setTimeout(() => {
+        echoEl.classList.add('fading');
+
+        // Linear fade over 7 seconds
+        const startTime = performance.now();
+        const duration = 7000;
+
+        echoFadeInterval = setInterval(() => {
+          const elapsed = performance.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const opacity = 1 - progress;
+
+          document.documentElement.style.setProperty('--echo-opacity', opacity);
+
+          if (progress >= 1) {
+            clearInterval(echoFadeInterval);
+            echoEl.classList.remove('visible', 'fading');
+            lastEchoTime = performance.now();
+            shouldShowWatermark = true;  // Next movement triggers watermark
+          }
+        }, 50);
+      }, 300);
+    }
+
+    // PHASE 2: Flash the watermark (residue of previous observation)
+    function flashWatermark() {
+      if (!shouldShowWatermark) return;
+      shouldShowWatermark = false;
+
+      const watermarkEl = document.getElementById('watermark-flash');
+      watermarkEl.classList.remove('active');
+      // Force reflow
+      void watermarkEl.offsetWidth;
+      watermarkEl.classList.add('active');
+
+      // Remove class after animation
+      setTimeout(() => {
+        watermarkEl.classList.remove('active');
+      }, 300);
+    }
+
+    // Start audio on first user interaction (browser requirement)
+    document.addEventListener('click', () => {
+      if (!humStarted) {
+        initAudio();
+        initMovementHum();  // PHASE 2: Also init movement hum
+      } else if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }, { once: false });
 
     // Wait for A-Frame to load
     document.querySelector('a-scene').addEventListener('loaded', () => {
@@ -630,6 +1328,13 @@
       pressureField1 = document.getElementById('pressure-field-1');
       pressureField2 = document.getElementById('pressure-field-2');
       pressureField3 = document.getElementById('pressure-field-3');
+      handprint = document.getElementById('handprint');
+      handprintHalo = document.getElementById('handprint-halo');
+
+      // PHASE 3: Layer identity elements
+      skeletonGrid = document.getElementById('skeleton-grid');
+      dimensionLabels = document.getElementById('dimension-labels');
+      vendingGlow = document.getElementById('vending-glow');
 
       // Apply additive blending to thermal spheres (the "add the light" technique)
       // This is the WebGL equivalent of mix-blend-mode: lighten
@@ -666,6 +1371,29 @@
       // Start trying after a frame
       requestAnimationFrame(() => {
         requestAnimationFrame(applyAdditiveBlending);
+      });
+
+      // Apply additive blending to handprint (warm glow)
+      const applyHandprintBlending = () => {
+        if (handprint) {
+          handprint.object3D.traverse((child) => {
+            if (child.isMesh && child.material) {
+              child.material.blending = THREE.AdditiveBlending;
+              child.material.depthWrite = false;
+            }
+          });
+        }
+        if (handprintHalo) {
+          handprintHalo.object3D.traverse((child) => {
+            if (child.isMesh && child.material) {
+              child.material.blending = THREE.AdditiveBlending;
+              child.material.depthWrite = false;
+            }
+          });
+        }
+      };
+      requestAnimationFrame(() => {
+        requestAnimationFrame(applyHandprintBlending);
       });
 
       const sceneEl = document.querySelector('a-scene');
@@ -709,11 +1437,125 @@
 
       // Initial state
       updateReality(0);
+
+      // Start the breathing animation loop
+      startBreathingLoop();
     });
 
-    // Slider control
+    // Slider control with Tidal Drift
+    // User interaction sustains clarity; release lets memory pull you back
+
+    // Stop drift when user touches slider
+    function stopDrift() {
+      isDrifting = false;
+      if (driftAnimationId) {
+        cancelAnimationFrame(driftAnimationId);
+        driftAnimationId = null;
+      }
+      if (driftTimeoutId) {
+        clearTimeout(driftTimeoutId);
+        driftTimeoutId = null;
+      }
+    }
+
+    // Start drift after delay
+    function scheduleDrift() {
+      stopDrift();  // Clear any existing
+      driftTimeoutId = setTimeout(() => {
+        if (currentReality < DRIFT_TARGET - 0.01) {
+          isDrifting = true;
+          lastDriftTime = performance.now();
+          driftTowardGhost();
+        }
+      }, DRIFT_DELAY);
+    }
+
+    // The drift animation — slow pull toward Ghost
+    let lastDriftTime = 0;
+    function driftTowardGhost() {
+      if (!isDrifting) return;
+
+      const now = performance.now();
+      const delta = now - lastDriftTime;
+      lastDriftTime = now;
+
+      // Move toward Ghost
+      const step = DRIFT_SPEED * delta;
+      currentReality = Math.min(DRIFT_TARGET, currentReality + step);
+
+      // Update slider and visuals
+      slider.value = currentReality * 100;
+      updateReality(currentReality);
+
+      // Continue if not at target
+      if (currentReality < DRIFT_TARGET - 0.001) {
+        driftAnimationId = requestAnimationFrame(driftTowardGhost);
+      } else {
+        isDrifting = false;
+        currentReality = DRIFT_TARGET;
+        slider.value = 100;
+        updateReality(DRIFT_TARGET);
+      }
+    }
+
+    // Slider input — user is actively controlling
     slider.addEventListener('input', (e) => {
+      // PHASE 5: Skip input during vacuum moment
+      if (vacuumMomentActive) {
+        e.target.value = 50;  // Hold at 0.5
+        return;
+      }
+
+      stopDrift();  // User took control
+
       const value = e.target.value / 100;
+      const now = performance.now();
+
+      // PHASE 2: On first movement, flash watermark if echo has faded
+      if (!isSliderMoving) {
+        isSliderMoving = true;
+        hasEchoedThisStop = false;  // Reset echo state for this interaction
+        hasTriggeredVacuumThisDrag = false;  // PHASE 5: Reset vacuum trigger
+        flashWatermark();  // Show residue of previous observation
+
+        // Clear any existing echo
+        const echoEl = document.getElementById('echo');
+        echoEl.classList.remove('visible', 'fading');
+        if (echoFadeInterval) clearInterval(echoFadeInterval);
+        if (echoTimeoutId) clearTimeout(echoTimeoutId);
+      }
+
+      // PHASE 5: Check for vacuum moment crossing
+      if (checkVacuumCrossing(lastSliderValue, value)) {
+        hasTriggeredVacuumThisDrag = true;
+        triggerVacuumMoment();
+        lastSliderValue = 0.5;  // Reset tracking to midpoint
+        return;  // Don't process further during vacuum
+      }
+
+      // Calculate velocity (change per millisecond)
+      if (lastSliderTime > 0) {
+        const timeDelta = now - lastSliderTime;
+        const valueDelta = Math.abs(value - lastSliderValue);
+        if (timeDelta > 0) {
+          currentVelocity = valueDelta / timeDelta;
+          // Add to turbulence based on velocity
+          turbulence = Math.min(1.0, turbulence + currentVelocity * VELOCITY_SENSITIVITY);
+
+          // PHASE 2: Update movement hum
+          updateMovementHum(currentVelocity);
+        }
+      }
+      lastSliderValue = value;
+      lastSliderTime = now;
+
+      // PHASE 2: Reset movement timeout (detects when slider stops)
+      if (movementTimeout) clearTimeout(movementTimeout);
+      movementTimeout = setTimeout(() => {
+        isSliderMoving = false;
+        fadeMovementHum();
+        showEcho();  // Show Resonator's lingering voice
+      }, 150);  // 150ms of no input = stopped
 
       if (!isTransitioning && Math.abs(value - currentReality) > 0.1) {
         showResonance();
@@ -723,9 +1565,61 @@
       updateReality(value);
     });
 
+    // When user releases slider, schedule drift back to Ghost
+    function handleSliderRelease() {
+      scheduleDrift();
+
+      // PHASE 2: Fade movement hum and show echo
+      setTimeout(() => {
+        if (!isSliderMoving) return;  // Already handled by movement timeout
+        isSliderMoving = false;
+        fadeMovementHum();
+        showEcho();
+      }, 100);
+    }
+
+    slider.addEventListener('mouseup', handleSliderRelease);
+    slider.addEventListener('touchend', handleSliderRelease);
+    slider.addEventListener('mouseleave', handleSliderRelease);
+
+    // Also start drift on page load after a moment
+    setTimeout(scheduleDrift, 3000);
+
     // Update everything based on reality index
     function updateReality(value) {
       document.documentElement.style.setProperty('--reality', value);
+
+      // PHASE 4: Update figure-pull state (geometry warps toward Figure at Ghost)
+      window.figurePullState.reality = value;
+
+      // PHASE 1: Update 60Hz hum volume (loud in Skeleton, soft in Ghost)
+      updateHumVolume(value);
+
+      // PHASE 1: Ghost text surfacing
+      // Text only appears above 0.5, with ease-in-quad mapping
+      const ghostTextEl = document.querySelector('.ghost-content');
+      if (ghostTextEl) {
+        if (value > 0.5) {
+          // Map [0.5, 1.0] to [0.0, 1.0] with ease-in-quad
+          const t = (value - 0.5) * 2;  // Linear 0-1
+          const eased = t * t;  // Ease-in-quad: slow start, fast finish
+          // Base opacity from slider position (breathing added in loop)
+          document.documentElement.style.setProperty('--ghost-text-base', eased);
+
+          // Trigger surfacing animation on first cross of threshold
+          if (!ghostTextHasSurfaced) {
+            ghostTextHasSurfaced = true;
+            ghostTextEl.classList.add('surfacing');
+          }
+        } else {
+          // Below threshold: reset surfacing state
+          if (ghostTextHasSurfaced && value < 0.45) {
+            ghostTextHasSurfaced = false;
+            ghostTextEl.classList.remove('surfacing');
+          }
+          document.documentElement.style.setProperty('--ghost-text-base', 0);
+        }
+      }
 
       // Update thermal phenomenon visibility (layered glow)
       // Only visible in Ghost mode (value > 0.5), peak at 1.0
@@ -760,8 +1654,18 @@
       document.querySelector('.layer-blueprint').style.opacity = 1 - Math.abs(value - 0.5) * 2;
       document.querySelector('.layer-ghost').style.opacity = value;
 
-      // Update materials based on reality index
-      updateMaterials(value);
+      // PHASE 2: Update interference overlay (chromatic aberration at 0.3/0.7)
+      const interferenceIntensity = calculateInterference(value);
+      const interferenceEl = document.getElementById('interference-overlay');
+      if (interferenceIntensity > 0.01) {
+        document.documentElement.style.setProperty('--interference-intensity', interferenceIntensity);
+        interferenceEl.classList.add('active');
+      } else {
+        interferenceEl.classList.remove('active');
+      }
+
+      // Materials are now updated by the breathing loop (startBreathingLoop)
+      // which continuously calls updateMaterials with the current breath phase
 
       // Update info panel if open
       if (selectedObject) {
@@ -770,17 +1674,19 @@
     }
 
     // Update object materials based on reality index
-    function updateMaterials(value) {
-      // Skeleton (0): grey wireframe, transparent fill
-      // Blueprint (0.5): cyan tint, solid
-      // Ghost (1.0): warm, slight glow
+    // PERSISTENT WIREFRAME with BREATHING OPACITY
+    // The ghost emerges from the data, not painted over it
+    function updateMaterials(value, breath = 0, turb = 0) {
+      // PHASE 3: Enhanced color palette with distinct Blueprint identity
+      const skeletonColor = { r: 0.35, g: 0.4, b: 0.38 };   // Neutral grey-green
+      const blueprintColor = { r: 0.0, g: 0.8, b: 0.9 };    // Bright cyan (Pollux's domain)
+      const ghostColor = { r: 0.7, g: 0.3, b: 0.25 };       // Warm amber-red memory
 
-      // SKELETON: brighter grey-green for visibility against dark background
-      const skeletonColor = { r: 0.4, g: 0.5, b: 0.45 };
-      const blueprintColor = { r: 0.1, g: 0.6, b: 0.7 };
-      const ghostColor = { r: 0.6, g: 0.2, b: 0.2 };
+      // TURBULENCE: Fast slider movement adds noise to colors
+      // Creates "splashing" effect when struggling with the slider
+      const turbNoise = turb * (Math.random() - 0.5) * 0.3;
 
-      // Interpolate colors
+      // Interpolate colors across the spectrum
       let color;
       if (value < 0.5) {
         const t = value * 2;
@@ -798,50 +1704,76 @@
         };
       }
 
+      // Apply turbulence noise to color
+      color.r = Math.max(0, Math.min(1, color.r + turbNoise));
+      color.g = Math.max(0, Math.min(1, color.g + turbNoise * 0.7));
+      color.b = Math.max(0, Math.min(1, color.b + turbNoise * 0.5));
+
       const colorHex = '#' +
         Math.round(color.r * 255).toString(16).padStart(2, '0') +
         Math.round(color.g * 255).toString(16).padStart(2, '0') +
         Math.round(color.b * 255).toString(16).padStart(2, '0');
 
-      // Smooth transition: wireframe fades out as fill fades in
-      // 0.0-0.15: pure wireframe
-      // 0.15-0.4: transition zone (wireframe fades, fill appears)
-      // 0.4+: solid fill
-      const wireframe = value < 0.3;
+      // PERSISTENT WIREFRAME: Always visible
+      // The ghost corrupts the skeleton, it doesn't replace it
+      const wireframe = true;
 
-      // Opacity: SKELETON mode more visible
-      // 0.0-0.2: wireframe clearly visible (opacity 0.6-0.7)
-      // 0.2-0.4: transition to solid (opacity 0.7-1.0)
-      // 0.4+: full solid (opacity 1.0)
-      let opacity;
-      if (value < 0.2) {
-        opacity = 0.6 + value * 0.5; // 0.6 to 0.7
-      } else if (value < 0.4) {
-        opacity = 0.7 + (value - 0.2) * 1.5; // 0.7 to 1.0
+      // Base opacity varies with layer
+      // Skeleton: sparse, clinical
+      // Blueprint: more visible, data-rich
+      // Ghost: pulsing, alive
+      let baseOpacity;
+      if (value < 0.3) {
+        baseOpacity = 0.5 + value * 0.5;  // 0.5 to 0.65
+      } else if (value < 0.7) {
+        baseOpacity = 0.65 + (value - 0.3) * 0.5;  // 0.65 to 0.85
       } else {
-        opacity = 1.0;
+        baseOpacity = 0.85;  // Cap so breathing is visible
       }
+
+      // BREATHING: Opacity modulation increases toward Ghost
+      // breath is a sine wave value (-1 to 1)
+      // At skeleton (0.0): almost no breathing
+      // At ghost (1.0): significant breathing (±0.15)
+      const breathIntensity = value * 0.15;
+      const breathModulation = breath * breathIntensity;
+
+      // TURBULENCE: Add opacity jitter when slider moves fast
+      const turbOpacity = turb * (Math.random() - 0.5) * 0.25;
+      const finalOpacity = Math.max(0.2, Math.min(1.0, baseOpacity + breathModulation + turbOpacity));
 
       // Apply to clickable objects (except the figure - it has special thermal materials)
       document.querySelectorAll('.clickable').forEach(el => {
-        // Skip the figure entity - its thermal spheres have custom additive blending
         if (el.id === 'figure') return;
 
         el.object3D.traverse((child) => {
           if (child.isMesh && child.material) {
             child.material.color.setStyle(colorHex);
             child.material.wireframe = wireframe;
-            child.material.wireframeLinewidth = 2; // Thicker lines (may not work on all platforms)
-
-            // Set opacity for smooth fill transition
+            child.material.wireframeLinewidth = 2;
             child.material.transparent = true;
-            child.material.opacity = opacity;
+            child.material.opacity = finalOpacity;
 
-            // Add emissive glow in ghost mode
+            // PHASE 3: Emissive glow with layer-specific colors
+            // Blueprint (0.5): cyan glow  |  Ghost (1.0): warm amber glow
             if (child.material.emissive) {
-              const glowIntensity = Math.max(0, (value - 0.7) * 3);
-              child.material.emissive.setStyle('#ff4444');
-              child.material.emissiveIntensity = glowIntensity * 0.3;
+              // Blueprint glow peaks at 0.5
+              const blueprintGlow = 1 - Math.abs(value - 0.5) * 2;  // Peaks at 0.5
+              // Ghost glow increases toward 1.0
+              const ghostGlow = Math.max(0, (value - 0.5) * 2);
+
+              // Interpolate emissive color: cyan at 0.5, warm red at 1.0
+              const emissiveR = blueprintGlow * 0.0 + ghostGlow * 1.0;
+              const emissiveG = blueprintGlow * 0.9 + ghostGlow * 0.3;
+              const emissiveB = blueprintGlow * 1.0 + ghostGlow * 0.2;
+
+              // Combined intensity with breathing and turbulence
+              const baseIntensity = Math.max(blueprintGlow * 0.6, ghostGlow * 0.4);
+              const breathMod = baseIntensity * (1 + breath * 0.3);
+              const turbMod = breathMod * (1 + turb * (Math.random() - 0.3) * 2);
+
+              child.material.emissive.setRGB(emissiveR, emissiveG, emissiveB);
+              child.material.emissiveIntensity = Math.max(0, turbMod);
             }
           }
         });
@@ -854,9 +1786,122 @@
         if (wall) {
           wall.setAttribute('material', 'color', colorHex);
           wall.setAttribute('material', 'wireframe', wireframe);
-          wall.setAttribute('material', 'opacity', opacity);
+          wall.setAttribute('material', 'opacity', finalOpacity);
         }
       });
+
+      // Floor grid also breathes in ghost mode
+      const floorGrid = document.querySelector('a-plane[material*="wireframe: true"]');
+      if (floorGrid) {
+        const gridOpacity = 0.3 + value * 0.3 + breathModulation * 0.5;
+        floorGrid.setAttribute('material', 'opacity', Math.max(0.2, Math.min(0.8, gridOpacity)));
+      }
+    }
+
+    // Breathing animation loop - the space is alive
+    function startBreathingLoop() {
+      const breathCycleDuration = 4000;  // 4 seconds per breath (slow, meditative)
+      let frozenBreathPhase = 0;  // PHASE 5: Store breath phase during vacuum
+
+      function breathe(timestamp) {
+        if (!lastBreathTime) lastBreathTime = timestamp;
+        const elapsed = timestamp - lastBreathTime;
+
+        // PHASE 5: During vacuum moment, freeze the breath
+        let roomBreath;
+        if (vacuumMomentActive) {
+          // Hold breath at current phase
+          roomBreath = Math.sin(frozenBreathPhase);
+        } else {
+          // Update breath phase (0 to 2π over the cycle duration)
+          breathPhase = (elapsed / breathCycleDuration) * Math.PI * 2;
+          frozenBreathPhase = breathPhase;  // Save for potential freeze
+          roomBreath = Math.sin(breathPhase);  // -1 to 1
+        }
+
+        // PHASE 1: Text breath is phase-shifted (responsive heartbeat)
+        // Quarter-cycle offset: text responds to room's breath
+        const textBreath = Math.sin(breathPhase - TEXT_BREATH_PHASE_OFFSET);  // -1 to 1
+
+        // Decay turbulence each frame (settles when user stops moving slider)
+        turbulence *= TURBULENCE_DECAY;
+        if (turbulence < 0.001) turbulence = 0;
+
+        // Update materials with current breath and turbulence values
+        updateMaterials(currentReality, roomBreath, turbulence);
+
+        // PHASE 1: Update ghost text opacity (base + breathing)
+        const ghostTextBase = parseFloat(getComputedStyle(document.documentElement)
+          .getPropertyValue('--ghost-text-base')) || 0;
+        if (ghostTextBase > 0) {
+          // Text breathes: ±10% modulation on top of base opacity
+          const textBreathModulation = textBreath * 0.1 * ghostTextBase;
+          const finalTextOpacity = Math.max(0, Math.min(1, ghostTextBase + textBreathModulation));
+          document.documentElement.style.setProperty('--ghost-text-opacity', finalTextOpacity);
+        } else {
+          document.documentElement.style.setProperty('--ghost-text-opacity', 0);
+        }
+
+        // PHASE 1: Update handprint (the warmth that persists)
+        // Visible only in Ghost mode, pulses with text breath cycle
+        if (handprint && handprintHalo) {
+          const handprintVisibility = Math.max(0, (currentReality - 0.5) * 2);  // 0 at 0.5, 1 at 1.0
+          if (handprintVisibility > 0) {
+            // Pulse with text breath (same rhythm as the memory's heartbeat)
+            // Range: 0.15 to 0.3 emissive intensity
+            const pulseBase = 0.15 + handprintVisibility * 0.15;
+            const pulseMod = textBreath * 0.08 * handprintVisibility;
+            const emissiveIntensity = pulseBase + pulseMod;
+
+            handprint.setAttribute('material', 'opacity', handprintVisibility * 0.4);
+            handprint.setAttribute('material', 'emissiveIntensity', emissiveIntensity);
+            handprintHalo.setAttribute('material', 'opacity', handprintVisibility * 0.15);
+          } else {
+            handprint.setAttribute('material', 'opacity', 0);
+            handprintHalo.setAttribute('material', 'opacity', 0);
+          }
+        }
+
+        // PHASE 3: Update skeleton grid visibility (fades toward Ghost)
+        if (skeletonGrid) {
+          const skeletonOpacity = Math.max(0, 1 - currentReality * 1.5);  // Fully gone by 0.67
+          skeletonGrid.object3D.traverse((child) => {
+            if (child.material) {
+              child.material.opacity = skeletonOpacity;
+              child.material.transparent = true;
+            }
+          });
+          skeletonGrid.object3D.visible = skeletonOpacity > 0.01;
+        }
+
+        // PHASE 3: Update dimension labels visibility
+        if (dimensionLabels) {
+          const labelOpacity = Math.max(0, 1 - currentReality * 2);  // Fully gone by 0.5
+          dimensionLabels.querySelectorAll('a-text').forEach(label => {
+            label.setAttribute('opacity', labelOpacity);
+          });
+          dimensionLabels.object3D.visible = labelOpacity > 0.01;
+        }
+
+        // PHASE 3: Vending machine glow breathes with room at Ghost
+        if (vendingGlow) {
+          // Only breathes visibly in Ghost mode
+          const ghostInfluence = Math.max(0, (currentReality - 0.5) * 2);  // 0 at 0.5, 1 at 1.0
+          // Base emissive: 0.3 at Skeleton, pulses 0.5-1.5 at Ghost
+          const baseEmissive = 0.3 + ghostInfluence * 0.5;
+          const breathMod = roomBreath * 0.5 * ghostInfluence;  // ±0.5 at full Ghost
+          const finalEmissive = baseEmissive + breathMod;
+          vendingGlow.setAttribute('material', 'emissiveIntensity', finalEmissive);
+          // Also pulse opacity slightly
+          const baseOpacity = 0.3 + ghostInfluence * 0.2;
+          const opacityMod = roomBreath * 0.1 * ghostInfluence;
+          vendingGlow.setAttribute('material', 'opacity', baseOpacity + opacityMod);
+        }
+
+        requestAnimationFrame(breathe);
+      }
+
+      requestAnimationFrame(breathe);
     }
 
     window.handleObjectClick = function(id) {

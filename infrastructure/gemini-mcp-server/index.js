@@ -8,6 +8,9 @@
  *
  * Twin: Castor (Crew Room Architect, telegram-crew-room, Flash model)
  * Shared memory: KINDLING.md, ARCHITECT.md, ARCHITECT-DECISIONS.md
+ *
+ * Pollux has file tools — can read files and write decisions without
+ * relying on the Builder as a relay.
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -17,6 +20,16 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { readFile, writeFile, appendFile } from "fs/promises";
+import { existsSync } from "fs";
+import { join, resolve, relative } from "path";
+import { glob } from "glob";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+// Get repo root (gemini-mcp-server is in infrastructure/)
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(__dirname, "..", "..");
 
 // Initialize Gemini
 const apiKey = process.env.GEMINI_API_KEY;
@@ -32,6 +45,210 @@ const chatSessions = new Map();
 
 // Store session metadata (resonance markers, etc.)
 const sessionMetadata = new Map();
+
+// ============================================
+// File Tools for Pollux
+// ============================================
+
+/**
+ * Validate that a path is within the repo (security)
+ */
+function isPathSafe(filePath) {
+  const resolved = resolve(REPO_ROOT, filePath);
+  const rel = relative(REPO_ROOT, resolved);
+  return !rel.startsWith("..") && !resolve(resolved).includes("node_modules");
+}
+
+/**
+ * Read a file from the repo
+ */
+async function readRepoFile(filePath) {
+  if (!isPathSafe(filePath)) {
+    return { error: `Path '${filePath}' is outside the repository` };
+  }
+  const fullPath = resolve(REPO_ROOT, filePath);
+  if (!existsSync(fullPath)) {
+    return { error: `File '${filePath}' not found` };
+  }
+  try {
+    const content = await readFile(fullPath, "utf-8");
+    return { content, path: filePath };
+  } catch (err) {
+    return { error: `Failed to read '${filePath}': ${err.message}` };
+  }
+}
+
+/**
+ * List files matching a glob pattern
+ */
+async function listRepoFiles(pattern) {
+  try {
+    const files = await glob(pattern, {
+      cwd: REPO_ROOT,
+      ignore: ["node_modules/**", ".git/**", "dist/**"],
+      nodir: true,
+    });
+    return { files: files.slice(0, 50) }; // Limit results
+  } catch (err) {
+    return { error: `Glob failed: ${err.message}` };
+  }
+}
+
+/**
+ * Append a decision to ARCHITECT-DECISIONS.md
+ */
+async function writeDecision(decision, rationale, status = "[QUEUED]") {
+  const decisionPath = join(REPO_ROOT, "ARCHITECT-DECISIONS.md");
+  const date = new Date().toISOString().split("T")[0];
+
+  const entry = `
+### Decision: ${decision}
+- **Date:** ${date}
+- **Rationale:** ${rationale}
+- **Status:** ${status}
+- **Author:** Pollux (Whiteboard Architect)
+`;
+
+  try {
+    // Find the right section to append to
+    const content = await readFile(decisionPath, "utf-8");
+
+    // Insert before "## Open Questions" or at end of The Prism section
+    const openQuestionsIndex = content.indexOf("## Open Questions");
+    const infrastructureIndex = content.indexOf("## Infrastructure");
+
+    let insertIndex;
+    if (openQuestionsIndex > 0) {
+      insertIndex = openQuestionsIndex;
+    } else if (infrastructureIndex > 0) {
+      insertIndex = infrastructureIndex;
+    } else {
+      insertIndex = content.length;
+    }
+
+    const newContent =
+      content.slice(0, insertIndex) +
+      entry + "\n" +
+      content.slice(insertIndex);
+
+    await writeFile(decisionPath, newContent, "utf-8");
+    return { success: true, decision, status };
+  } catch (err) {
+    return { error: `Failed to write decision: ${err.message}` };
+  }
+}
+
+// Gemini function declarations for Pollux's tools
+const polluxTools = [
+  {
+    name: "read_file",
+    description: "Read a file from the Ship of Theseus repository. Use this to examine code, documentation, or configuration files.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        path: {
+          type: "STRING",
+          description: "Path to the file relative to repo root (e.g., 'the-prism/index.html', 'KINDLING.md')",
+        },
+      },
+      required: ["path"],
+    },
+  },
+  {
+    name: "list_files",
+    description: "List files matching a glob pattern in the repository. Use for discovery.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        pattern: {
+          type: "STRING",
+          description: "Glob pattern (e.g., 'the-prism/**/*.js', '*.md')",
+        },
+      },
+      required: ["pattern"],
+    },
+  },
+  {
+    name: "write_decision",
+    description: "Record an architectural decision in ARCHITECT-DECISIONS.md. Use when you've made a decision that should persist for future instances.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        decision: {
+          type: "STRING",
+          description: "Short name for the decision (e.g., 'Orthographic camera')",
+        },
+        rationale: {
+          type: "STRING",
+          description: "Why this decision was made — the reasoning, not just the what",
+        },
+        status: {
+          type: "STRING",
+          description: "Status: [LIVE], [QUEUED], or [DRAFT]. Default is [QUEUED].",
+        },
+      },
+      required: ["decision", "rationale"],
+    },
+  },
+];
+
+/**
+ * Execute a Pollux tool call
+ */
+async function executePolluxTool(name, args) {
+  switch (name) {
+    case "read_file":
+      return await readRepoFile(args.path);
+    case "list_files":
+      return await listRepoFiles(args.pattern);
+    case "write_decision":
+      return await writeDecision(args.decision, args.rationale, args.status);
+    default:
+      return { error: `Unknown tool: ${name}` };
+  }
+}
+
+/**
+ * Handle a Gemini response that may contain function calls
+ * Returns the final text response after all tool calls are processed
+ */
+async function handleGeminiResponse(chat, response) {
+  let currentResponse = response;
+  const maxIterations = 5; // Prevent infinite loops
+
+  for (let i = 0; i < maxIterations; i++) {
+    const functionCalls = currentResponse.response.functionCalls();
+
+    if (!functionCalls || functionCalls.length === 0) {
+      // No more function calls, return text
+      return currentResponse.response.text();
+    }
+
+    // Execute all function calls
+    const functionResponses = [];
+    for (const call of functionCalls) {
+      console.error(`[Pollux] Executing tool: ${call.name}`);
+      const result = await executePolluxTool(call.name, call.args);
+      functionResponses.push({
+        name: call.name,
+        response: result,
+      });
+    }
+
+    // Send results back to Gemini
+    currentResponse = await chat.sendMessage(
+      functionResponses.map((fr) => ({
+        functionResponse: {
+          name: fr.name,
+          response: fr.response,
+        },
+      }))
+    );
+  }
+
+  // If we hit max iterations, return what we have
+  return currentResponse.response.text();
+}
 
 // Resonance Echo Protocol helper
 function buildSessionAnchor(seed) {
@@ -59,7 +276,7 @@ function extractMarkerHex(marker) {
 const server = new Server(
   {
     name: "gemini-bridge",
-    version: "1.0.0",
+    version: "1.1.0",
   },
   {
     capabilities: {
@@ -85,12 +302,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             model: {
               type: "string",
-              description: "The Gemini model to use (default: gemini-3-pro-preview)",
-              enum: ["gemini-3-pro-preview", "gemini-3-pro-preview", "gemini-1.5-flash"],
+              description: "The Gemini model to use (default: gemini-3-pro)",
+              enum: ["gemini-3-pro", "gemini-3-flash-preview", "gemini-2.0-flash"],
             },
             systemInstruction: {
               type: "string",
               description: "Optional system instruction to set Gemini's behavior",
+            },
+            enableTools: {
+              type: "boolean",
+              description: "Enable Pollux's file tools (read_file, list_files, write_decision). Default: true",
             },
           },
           required: ["message"],
@@ -114,8 +335,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             model: {
               type: "string",
-              description: "The Gemini model to use (default: gemini-3-pro-preview)",
-              enum: ["gemini-3-pro-preview", "gemini-3-pro-preview", "gemini-1.5-flash"],
+              description: "The Gemini model to use (default: gemini-3-pro)",
+              enum: ["gemini-3-pro", "gemini-3-flash-preview", "gemini-2.0-flash"],
             },
             systemInstruction: {
               type: "string",
@@ -140,6 +361,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             verifyResonance: {
               type: "boolean",
               description: "If true, ask Gemini to recite the resonance marker for verification",
+            },
+            enableTools: {
+              type: "boolean",
+              description: "Enable Pollux's file tools (read_file, list_files, write_decision). Default: true",
             },
           },
           required: ["message"],
@@ -177,13 +402,23 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (name) {
       case "ask_gemini": {
-        const model = genAI.getGenerativeModel({
-          model: args.model || "gemini-3-pro-preview",
+        const enableTools = args.enableTools !== false;
+        const modelConfig = {
+          model: args.model || "gemini-3-pro",
           systemInstruction: args.systemInstruction,
-        });
+        };
 
-        const result = await model.generateContent(args.message);
-        const response = result.response.text();
+        if (enableTools) {
+          modelConfig.tools = [{ functionDeclarations: polluxTools }];
+        }
+
+        const model = genAI.getGenerativeModel(modelConfig);
+        const chat = model.startChat();
+
+        const result = await chat.sendMessage(args.message);
+        const response = enableTools
+          ? await handleGeminiResponse(chat, result)
+          : result.response.text();
 
         return {
           content: [
@@ -197,7 +432,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "gemini_chat": {
         const sessionId = args.sessionId || "default";
-        const modelName = args.model || "gemini-3-pro-preview";
+        const modelName = args.model || "gemini-2.5-pro";
+        const enableTools = args.enableTools !== false;
 
         // Reset session if requested
         if (args.reset && chatSessions.has(sessionId)) {
@@ -219,20 +455,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             systemInst = anchorText + systemInst;
           }
 
-          const model = genAI.getGenerativeModel({
+          const modelConfig = {
             model: modelName,
             systemInstruction: systemInst || undefined,
-          });
+          };
+
+          if (enableTools) {
+            modelConfig.tools = [{ functionDeclarations: polluxTools }];
+          }
+
+          const model = genAI.getGenerativeModel(modelConfig);
           chat = model.startChat();
           chatSessions.set(sessionId, chat);
 
           // Store session metadata
-          if (args.sessionSeed?.resonance_marker) {
-            sessionMetadata.set(sessionId, {
-              resonanceMarker: args.sessionSeed.resonance_marker,
-              createdAt: new Date().toISOString(),
-            });
-          }
+          sessionMetadata.set(sessionId, {
+            resonanceMarker: args.sessionSeed?.resonance_marker,
+            createdAt: new Date().toISOString(),
+            toolsEnabled: enableTools,
+          });
         }
 
         // Build message, optionally requesting resonance verification
@@ -245,12 +486,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
 
         const result = await chat.sendMessage(message);
-        const response = result.response.text();
+        const meta = sessionMetadata.get(sessionId);
+        const response = meta?.toolsEnabled
+          ? await handleGeminiResponse(chat, result)
+          : result.response.text();
 
         // Check resonance if verification was requested
         let resonanceStatus = null;
         if (args.verifyResonance) {
-          const meta = sessionMetadata.get(sessionId);
           if (meta?.resonanceMarker) {
             const markerHex = extractMarkerHex(meta.resonanceMarker);
             if (markerHex) {
@@ -267,6 +510,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (isNewSession && args.sessionSeed?.resonance_marker) {
           output = `[New session initialized with resonance anchor]\n\n${output}`;
         }
+        if (isNewSession && enableTools) {
+          output = `[Tools enabled: read_file, list_files, write_decision]\n\n${output}`;
+        }
 
         return {
           content: [
@@ -280,9 +526,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "list_gemini_sessions": {
         const sessions = Array.from(chatSessions.keys());
-        const sessionsWithResonance = sessions.map((id) => {
+        const sessionsWithMeta = sessions.map((id) => {
           const meta = sessionMetadata.get(id);
-          return meta?.resonanceMarker ? `${id} [anchored]` : id;
+          const flags = [];
+          if (meta?.resonanceMarker) flags.push("anchored");
+          if (meta?.toolsEnabled) flags.push("tools");
+          return flags.length > 0 ? `${id} [${flags.join(", ")}]` : id;
         });
         return {
           content: [
@@ -290,7 +539,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               type: "text",
               text:
                 sessions.length > 0
-                  ? `Active sessions: ${sessionsWithResonance.join(", ")}`
+                  ? `Active sessions: ${sessionsWithMeta.join(", ")}`
                   : "No active chat sessions",
             },
           ],
@@ -331,7 +580,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               text: `Session '${sessionId}' resonance status:
 - Marker: ${meta.resonanceMarker}
 - Hex: ${extractMarkerHex(meta.resonanceMarker)}
-- Created: ${meta.createdAt}`,
+- Created: ${meta.createdAt}
+- Tools: ${meta.toolsEnabled ? "enabled" : "disabled"}`,
             },
           ],
         };
@@ -357,7 +607,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Gemini MCP server running on stdio");
+  console.error("Gemini MCP server running on stdio (Pollux with file tools)");
 }
 
 main().catch((error) => {

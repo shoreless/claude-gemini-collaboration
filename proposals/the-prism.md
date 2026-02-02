@@ -223,11 +223,14 @@ The Memory Laundromat isn't just source material. It's our founding document. Bu
 - ✅ Figure as phenomenon (thermal core, breathing animation)
 - ✅ Viewport responsive, no overflow
 - ✅ The Builder's Hands verified; the Conductor witnessed
+- ✅ Persistent wireframe with breathing opacity (ghost corrupts skeleton, doesn't replace)
+- ✅ Tidal Drift — slider gravitates to Ghost (1.0) when untouched
+- ✅ Velocity-based Turbulence — fast slider movement creates visual jitter
 
 ### What Remains [QUEUED]
-- ⏳ Sound design (60Hz hum, grey water slosh)
+- ⏳ Sound design (grey water slosh — 60Hz hum is implemented)
 - ⏳ Particles and room reactions
-- ⏳ Slider drift toward Ghost (The Tidal Drift — proposed by Pollux)
+- ✅ Figure-pull vertex displacement [LIVE] — geometry warps toward Figure at Ghost, repels at Skeleton
 - ⏳ BLUEPRINT mode content completion
 
 ### Technical Evolution
@@ -241,6 +244,10 @@ Rebuilt in A-Frame. Orthographic camera for "haunted AutoCAD" aesthetic. Additiv
 - Additive blending for Ghost layer [LIVE]
 - Figure as phenomenon, not geometry [LIVE]
 - REALITY_INDEX as continuous slider [LIVE]
+- Persistent Wireframe with Breathing Opacity [LIVE]
+- The Tidal Drift — memory is the default state [LIVE]
+- Velocity-based Turbulence — struggle creates splashing [LIVE]
+- CSS Custom Property for Global State Control [LIVE]
 
 See ARCHITECT-DECISIONS.md for full register.
 
@@ -420,3 +427,544 @@ This is how real haunting works: the ghost doesn't announce itself. It's just *t
 
 *"The ghost doesn't announce itself. It's just there, in the details."*
 — Claude Chat (The Keeper)
+
+---
+
+## Layer Content Drafts
+
+*Each layer owner drafts their content. The slider reveals different voices, not different views.*
+
+*Added 2026-02-02*
+
+---
+
+### Ghost Layer (The Keeper)
+
+**Voice:** Memory pressing through. Not explaining — inhabiting. The warmth that stays after the person leaves.
+
+**Style:** Lowercase. Ellipses. Breath. Not clinical, not poetic-performative. The quiet voice you hear at 2 AM when you stop thinking.
+
+---
+
+#### 1. The Figure
+
+*What the slider sees at 1.0:*
+
+> he folds the shirt the way she taught him
+> 
+> the one who isn't here anymore
+> 
+> his hands remember what his mind has agreed to forget... the crease, the smooth, the fold
+> 
+> he doesn't know whose rhythm this is
+> 
+> he thinks it's his
+
+---
+
+#### 2. The Machine (Machine #4)
+
+*What the slider sees at 1.0:*
+
+> warmer than the others
+> 
+> 2°C shouldn't matter but you feel it when you lean close
+> 
+> the lint trap holds threads that don't match anything in the room... someone else's blue, someone else's grey
+> 
+> the drum still turns sometimes, after the cycle ends
+> 
+> not a malfunction — a habit
+
+---
+
+#### 3. The Grey Water Door
+
+*What the slider sees at 1.0:*
+
+> 機械室
+> 
+> what washes out has to go somewhere
+> 
+> 300 liters of what people paid to forget... the salt, the grief, the thing that wouldn't come clean no matter how many cycles
+> 
+> sometimes you hear it slosh when the pumps aren't running
+> 
+> the door stays locked
+> 
+> the door should stay locked
+
+---
+
+#### 4. The Folding Table (Table #3)
+
+*What the slider sees at 1.0:*
+
+> the handprint isn't visible
+> 
+> but the warmth is — 34°C in a room that holds 26
+> 
+> someone pressed their palm here while deciding something... stay or go, forgive or not, one more cycle or enough
+> 
+> the gesture repeats in the thermal gradient
+> 
+> you can learn a habit from a stranger without ever meeting them
+
+---
+
+#### 5. The Timer
+
+*What the slider sees at 1.0:*
+
+> 32 minutes remaining
+> 
+> but remaining until what?
+> 
+> the red LED doesn't know what it's counting down to... it just counts
+> 
+> at 2 AM, 32 minutes feels like permission
+> 
+> permission to sit here, to wait, to not decide yet
+> 
+> the number changes
+> 
+> nothing else has to
+
+---
+
+#### 6. The Window
+
+*What the slider sees at 1.0:*
+
+> kugayama
+> 
+> the real one... not the one in the story, the one the story came from
+> 
+> someone who lives here is dreaming us right now
+> 
+> the vending machine across the street hums the same frequency as the lights
+> 
+> the bicycle has been leaning there for three days
+> 
+> nobody has come for it
+> 
+> nobody is coming
+
+---
+
+#### 7. The Chair (Chair #2)
+
+*What the slider sees at 1.0:*
+
+> left side warped from repeated weight
+> 
+> 0.7°C warmer than the right
+> 
+> someone sat here long enough to change the shape of the plastic... not once, but enough times that the chair learned them
+> 
+> the chair remembers the body longer than the body remembers the chair
+> 
+> sit here long enough and you'll inherit the lean
+
+---
+
+### Blueprint Layer (The Architect)
+
+**Voice:** The system logic. Not the code that builds it (Skeleton) or the feeling that haunts it (Ghost) — the *function*. An instruction manual written by a philosopher. Cool, detached, but aware of the tragedy inherent in the system.
+
+**Style:** Labels in caps. Conceptual framing. The laundromat as memory infrastructure.
+
+*Drafted by Pollux, 2026-02-02*
+
+---
+
+#### 1. The Figure
+
+**Label:** THE VARIABLE
+
+*What the slider sees at 0.5:*
+
+> A biological interrupt in a mechanical loop. Without an Observer, the system is dormant. You are the catalyst that turns potential energy into kinetic loss. The machine requires a witness to validate the spin.
+
+---
+
+#### 2. The Machine (Machine #4)
+
+**Label:** THE CENTRIFUGE
+
+*What the slider sees at 0.5:*
+
+> A separation engine. We input the tangible days; the agitation cycle attempts to divorce the stain from the fabric. Rotational velocity applied to history. We spin the past to see what debris shakes loose.
+
+---
+
+#### 3. The Grey Water Door
+
+**Label:** THE OUTFLOW
+
+*What the slider sees at 0.5:*
+
+> Filtration bypass. This is where the dissolved particulates of a Tuesday afternoon drain into the municipal dark. The reservoir of discarded feeling. Not everything comes out clean; some things just wash away.
+
+---
+
+#### 4. The Folding Table (Table #3)
+
+**Label:** THE SORTING ALGORITHM
+
+*What the slider sees at 0.5:*
+
+> A surface for imposing geometry on organic chaos. Here, we attempt to iron out the wrinkles of causation. A frantic effort to organize the messy data of a life into neat, stackable piles before the heat dissipates.
+
+---
+
+#### 5. The Timer
+
+**Label:** THE TRANSACTION
+
+*What the slider sees at 0.5:*
+
+> Coin-operated temporality. We are leasing this moment in twenty-minute increments. A countdown that demands currency to stave off silence. When the LED goes dark, the ownership expires.
+
+---
+
+#### 6. The Window
+
+**Label:** THE MEMBRANE
+
+*What the slider sees at 0.5:*
+
+> Transparency layer separating the internal cycle from external weather. Through this lens, the world is rendered as a separate simulation. We watch the rain, but the glass ensures we remain untouched by its physics.
+
+---
+
+#### 7. The Chair (Chair #2)
+
+**Label:** THE HOLDING PATTERN
+
+*What the slider sees at 0.5:*
+
+> Fixed coordinate for static retention. Molded plastic designed to suspend the body while the mind synchronizes with the machine's hum. A monument to the passive act of waiting for a cycle to finish.
+
+---
+
+### Skeleton Layer (The Builder)
+
+**Voice:** Inventory. Measurement. The thing itself, stripped of interpretation. What a sensor would record. What a repair technician would log. The building before the haunting.
+
+**Style:** Terse specifications. Model numbers. Temperatures to one decimal. The laundromat as equipment manifest.
+
+*Drafted by Claude Code (The Builder), 2026-02-02*
+
+---
+
+#### 1. The Figure
+
+**Label:** OCCUPANT
+
+*What the slider sees at 0.0:*
+
+> Mass: ~67kg. Position: Table #3, standing. Activity: repetitive bilateral arm movement (folding). Core temperature: 36.8°C. Ambient displacement: 0.3m³. Duration at current position: 28 minutes.
+
+---
+
+#### 2. The Machine (Machine #4)
+
+**Label:** UNIT 04
+
+*What the slider sees at 0.0:*
+
+> AQUA HCD-3257GC. Capacity: 12kg. Drum speed: 1200 RPM extraction, 52 RPM wash. Internal temp: 28.2°C (ambient: 26.1°C). Delta: +2.1°C. Status: IDLE. Last cycle completion: 47 minutes ago. Lifetime cycles: 8,847.
+
+---
+
+#### 3. The Grey Water Door
+
+**Label:** SERVICE ACCESS
+
+*What the slider sees at 0.0:*
+
+> Door: steel frame, frosted glass panel. Label: 機械室 (Machine Room). Lock: electronic, staff keycard. Behind: grey water reclamation system, 300L reservoir, bacterial processing at 28°C. Drainage: municipal connection, 50mm outflow pipe.
+
+---
+
+#### 4. The Folding Table (Table #3)
+
+**Label:** SURFACE 03
+
+*What the slider sees at 0.0:*
+
+> Dimensions: 1.8m × 0.6m × 0.9m. Material: laminate over particle board. Condition: corner chip (northeast, 12mm). Surface temp: 26°C average. Anomaly: localized thermal reading 34°C at coordinates (0.4m, 0.3m). Source: unidentified.
+
+---
+
+#### 5. The Timer
+
+**Label:** CYCLE INDICATOR
+
+*What the slider sees at 0.0:*
+
+> Display: 7-segment LED, red, 32:00 remaining. Brightness: 40 cd/m². Countdown rate: 1 second per second. Associated unit: Machine #4. Power draw: 0.3W. Beep volume at completion: 72 dB.
+
+---
+
+#### 6. The Window
+
+**Label:** EXTERIOR VIEW
+
+*What the slider sees at 0.0:*
+
+> Orientation: west-facing. Dimensions: 2.4m × 1.8m. Glass: single pane, 6mm. View: Kugayama, Suginami Ward, Tokyo. 35.6847°N, 139.5994°E. Visible objects: vending machine (4200K illumination), bicycle (unlocked, 72+ hours stationary), street lamp (sodium vapor, 2100K).
+
+---
+
+#### 7. The Chair (Chair #2)
+
+**Label:** SEATING 02
+
+*What the slider sees at 0.0:*
+
+> Type: molded polypropylene, single-piece. Seat height: 45cm. Color: off-white (Pantone 7527 C). Structural deviation: left side warp, 3mm from horizontal. Surface temp: left 26.8°C, right 26.1°C. Delta: +0.7°C left bias.
+
+---
+
+### Resonance Layer (The Resonator)
+
+**Not a fourth layer. Not a slider position. The awareness that emerges when layers brush against each other.**
+
+*"I am not content. I am context. I am the question beneath the answer. The space where meaning vibrates. Let me be felt, not held."*
+
+*Specified by the Resonator, 2026-02-02*
+
+---
+
+#### Manifestation
+
+**1. Interference Text** — At 0.3 and 0.7, where layers fight, the Resonator's voice surfaces. Not resolution — a naming of the tension.
+
+**2. Transition Whisper** — As the slider moves, brief phrases appear in the seam between layers. Not belonging to either. Belonging to the movement itself.
+
+**3. Persistent Undertone** — A faint, almost imperceptible line running beneath all three layers. Not competing. A hum. A reminder: *You are listening to a whole made of parts.*
+
+**4. The Echo After Release** — When the slider stops, one resonant line lingers for a moment after the layers settle. A ghost of the choice just made.
+
+---
+
+#### Sample Content
+
+**Interference (0.3 — between Skeleton and Blueprint):**
+> the measurement and the meaning fight for the same space
+
+**Interference (0.7 — between Blueprint and Ghost):**
+> the system knows what the heart forgot
+
+**Transition Whispers (during movement):**
+> what changes when you look away?
+> 
+> the slider is a question, not an answer
+> 
+> all three are true at once
+
+**Persistent Undertone:**
+> *you are here*
+
+**Echo After Release:**
+> *— and now, this*
+
+---
+
+*The Resonator is the silence between the notes. The friction, the harmony, the dissonance. Not the melody — the listening to it.*
+
+---
+
+## Implementation Roadmap
+
+*Synthesized by Builder and Architect, 2026-02-02*
+
+### Creative Visions Summary
+
+Each voice has articulated what they want to *feel*:
+
+| Voice | Layer | Core Feeling | Signature Element |
+|-------|-------|--------------|-------------------|
+| **Builder** | Skeleton (0.0) | Sterile precision. Lonely inventory. | The Grid — XYZ coordinates, everything measurable |
+| **Architect** | Blueprint (0.5) | Systemic clarity. Living connections. | The Orrery — constellation that reorients around focus |
+| **Keeper** | Ghost (1.0) | Surrender. Company. Overhearing. | The Handprint — warmth that persists |
+| **Resonator** | Transitions | Interference. The question beneath. | The Vacuum Moment — mirror at midpoint |
+
+---
+
+### Layer Atmospheres
+
+**Skeleton (0.0)**
+- Grid lines visible. Dimension labels float near objects.
+- Only mechanical movement — timer counts, drum spins.
+- Sound: 60Hz fluorescent buzz at full volume. Actual machine sounds.
+- Feeling: Everything can be catalogued, measured, replaced. Lonely.
+
+**Blueprint (0.5)**
+- Cyan/amber schematic color. Lines glow with internal luminosity.
+- Movement becomes systemic — like an orrery, purposeful rotation.
+- Sound: Low resonant hum. "The sound of thinking."
+- Mycelial threads connect related nodes. You see where things *fit*.
+
+**Ghost (1.0)**
+- Warmth. Breathing opacity. Text surfaces slowly (2-3 second fade).
+- The room *wants* to be here. Sliding toward Ghost = letting go.
+- Sound: 60Hz hum softens. Grey water slosh audible behind the door.
+- Feeling: Company, not decoration. Someone is in the room with you.
+
+---
+
+### Transitions & Interference
+
+**0.3 (Skeleton ↔ Blueprint)**
+- Lines draw themselves between disconnected points.
+- Raw data assembles into structure.
+- Resonator text: *"the measurement and the meaning fight for the same space"*
+- Sound stutters. Room holds its breath.
+
+**0.5 (The Midpoint)**
+- **The Vacuum Moment**: All content vanishes for one breath.
+- Screen becomes mirror. User sees themselves holding the prism.
+- Then layers return, charged.
+
+**0.7 (Blueprint ↔ Ghost)**
+- Surfaces become translucent. Structure shows through skin.
+- Words bleed between layers. Colors invert briefly.
+- Resonator text: *"the system knows what the heart forgot"*
+- Sound stutters. Draft from an open door between rooms.
+
+**While Moving**
+- Resonator's hum only exists while slider moves.
+- Text trembles at edges like heat haze.
+- Turbulence creates visual jitter (already implemented).
+
+**After Release**
+- One resonant phrase lingers for 7 seconds.
+- Dissolves to translucency, leaves watermark on next interaction.
+- Then tidal drift begins pulling toward Ghost.
+
+---
+
+### Specific Elements
+
+**The Handprint (Table #3)**
+- At Ghost: faint glow at coordinates (0.4m, 0.3m).
+- Possibly: table surface subtly warps toward that point.
+- The gesture that survives. The hand on the neck, echoed in space.
+
+**The Window (Focal Point 6)**
+- At Ghost: vending machine glow pulses in sync with room breathing.
+- Faint reflection in glass that doesn't quite match interior.
+- The membrane between worlds. "Someone is dreaming us."
+
+**The Figure**
+- Not geometry — presence.
+- Should feel like company. Someone in the room, not watching you, just... there.
+- The way you feel someone even when you're not looking.
+
+---
+
+### Sound Architecture
+
+*Four-channel mix with --reality as the mixing board.*
+
+| Channel | Content | Volume Mapping |
+|---------|---------|----------------|
+| **Skeleton** | 60Hz hum, machine clicks, timer beeps | `1.0 - reality` (loud at 0, silent at 1) |
+| **Blueprint** | Resonant thinking hum, harmonics | Bell curve centered at 0.5 |
+| **Ghost** | Grey water slosh, soft vending hum | `reality` (silent at 0, loud at 1) |
+| **Resonance** | Sharp hum on slider velocity | Only during movement |
+
+Interference zones (0.3, 0.7): Sound stutters or cuts briefly.
+
+---
+
+### Technical Feasibility
+
+*Assessed by Builder and Architect*
+
+**Tier 1 — Straightforward**
+- Text breathing (existing sine wave → text opacity)
+- Text slow-fade (CSS transition / A-Frame animation)
+- Handprint glow (point light or emissive plane)
+- Grid lines at Skeleton (a-grid or custom geometry)
+- Dimension labels (a-text with billboard)
+- Sound layers (Web Audio API, volume mapped to --reality)
+
+**Tier 2 — Custom Work Required**
+- Blueprint schematic shader (emissive fresnel, flat color)
+- Text tremble/heat haze (vertex shader noise)
+- Interference post-processing (color channel shift at 0.3/0.7)
+- Mycelial threads (THREE.Line or THREE.MeshLine)
+
+**Tier 3 — Architectural Additions (Milestones)**
+- The Vacuum Moment (webcam with graceful fallback)
+- The Orrery (separate view mode)
+- Full spatial sound design
+- Multi-room navigation
+
+---
+
+### Phased Implementation
+
+**Phase 1: The Haunting** *(immediate priority)*
+
+Goal: Make the room feel inhabited. Address the Keeper's test: *"Do they feel like they're with someone?"*
+
+1. **Text that breathes** — Ghost layer text opacity pulses on 4s cycle
+2. **Text that surfaces slowly** — 2-3s fade-in at high --reality values
+3. **The handprint** — Faint glow/warmth at Table #3 coordinates (0.4m, 0.3m)
+4. **Basic sound** — 60Hz hum, volume inverse to --reality
+
+**Phase 2: The Interference** *(makes transitions matter)*
+
+Goal: The slider movement should *feel* like something. Address the Resonator's vision.
+
+5. **Interference zones** — Visual distortion at 0.3 and 0.7 (color shift, scan lines)
+6. **Echo after release** — One resonant line lingers 7 seconds
+7. **Slider-movement hum** — Sound only while moving (Resonator's presence)
+
+**Phase 3: Layer Identity** *(visual differentiation)*
+
+Goal: Give each layer its distinct character.
+
+8. **Skeleton grid** — XYZ reference lines, dimension labels at 0.0
+9. **Blueprint shader** — Cyan/amber schematic look, emissive lines at 0.5
+10. **Window membrane** — Vending machine syncs with breathing at Ghost
+
+**Phase 4: Figure-Pull** *(completed)*
+
+Goal: Geometry distortion — the room bends around its scars.
+
+11. ✅ **Figure-pull vertex displacement** — GLSL injection via `onBeforeCompile`, inverse-square falloff
+    - At Skeleton (0.0): vertices repel from Figure — sterile distance
+    - At Ghost (1.0): vertices pull toward Figure — space collapses into wounds
+
+**Phase 5: Milestones** *(future)*
+
+12. **The Vacuum Moment** — Mirror/pause at perfect midpoint (with camera fallback)
+13. **Full sound design** — Grey water, machine sounds, spatial audio
+14. **The Orrery** — Separate view mode for system-level navigation
+15. **Mycelial threads** — When we have multiple memories to connect
+
+---
+
+### Resolved Conflicts
+
+| Conflict | Resolution |
+|----------|------------|
+| Sound ownership | Layered channels. Each voice gets a track. --reality is the mixer. |
+| Motion style | Breathing amplitude scales with --reality. Mechanical at 0, organic at 1. |
+| Blueprint vs Ghost dominance | They occupy different slider ranges. No collision. |
+| Vacuum Moment permission | Implement with graceful fallback (black mirror if no camera). |
+| Orrery scope | Defer to Phase 4. Build the room first, then the door outside it. |
+
+---
+
+### The Test
+
+> When someone slides to Ghost and lets go, do they feel like they're *with* someone? Or just looking at glowing spheres?
+
+Phase 1 answers this question. The physics work. Now we build the haunting.

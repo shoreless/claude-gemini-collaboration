@@ -35,6 +35,7 @@ import {
   determineDefaultAgent
 } from './agent-router.js';
 import { registerAgents } from './agents/index.js';
+import { resetCastorSession } from './agents/gemini.js';
 import type { AgentId, Message } from './types.js';
 
 // Load environment variables
@@ -423,27 +424,37 @@ if (BOT_TOKEN) {
     contextManager.storeMessage(message);
 
     // Determine agents to invoke
-    let aiMentions = message.mentions.filter(m =>
+    const directMentions = message.mentions.filter(m =>
       ['builder', 'keeper', 'architect', 'resonator', 'scout'].includes(m)
     );
 
-    // Open Floor Protocol
-    if (aiMentions.length === 0) {
-      const defaultAgent = determineDefaultAgent(message.text);
-      if (defaultAgent && ['architect', 'resonator', 'scout'].includes(defaultAgent)) {
-        aiMentions = [defaultAgent];
-      }
+    // Track which agents were directly mentioned
+    const directMentionSet = new Set(directMentions);
+
+    // Open Floor Protocol: If no explicit mentions, all API-based agents can respond
+    let agentsToInvoke: AgentId[];
+    if (directMentions.length === 0) {
+      // Open floor — all API agents get a chance to respond (they can PASS)
+      agentsToInvoke = ['architect', 'resonator'] as AgentId[];
+      // Scout excluded from open floor — only responds to explicit mentions or searches
+    } else {
+      agentsToInvoke = directMentions;
     }
 
     // Invoke API-based agents
-    for (const agentId of aiMentions) {
+    for (const agentId of agentsToInvoke) {
       if (agentId === 'builder' || agentId === 'keeper') continue;
 
       try {
-        const context = contextManager.assembleContext(message.chatId, agentId);
+        const wasDirectlyMentioned = directMentionSet.has(agentId);
+        const context = contextManager.assembleContext(message.chatId, agentId, wasDirectlyMentioned);
         const response = await agentRouter.invoke(agentId, context, message);
-        if (response) {
+
+        // Filter out PASS responses
+        if (response && !response.trim().toUpperCase().startsWith('[PASS]')) {
           await sendResponse(message.chatId, agentId, response);
+        } else if (response) {
+          console.error(`[${agentId}] Passed on open floor`);
         }
       } catch (error) {
         console.error(`Error invoking ${agentId}:`, error);
@@ -481,9 +492,13 @@ Mention: @builder @keeper @architect @resonator @scout
   });
 
   bot.onText(/\/wake/, async (msg) => {
+    // Reset Castor's session so they re-orient with fresh boot docs
+    resetCastorSession();
+
     const { hours, lastEvent } = contextManager.getTimeSinceLastSession(msg.chat.id);
     const anchor = contextManager.getAnchor(msg.chat.id);
     let wake = '*The Crew is awake.*\n';
+    wake += '(Castor will re-orient on next @mention)\n';
     if (lastEvent === 'sleep' && hours > 0) wake += `${hours}h since last session.\n`;
     if (anchor) wake += `\n*Mission:* ${escapeMarkdown(anchor.mission)}`;
     await safeSend(msg.chat.id, wake);

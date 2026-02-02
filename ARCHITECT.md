@@ -59,7 +59,15 @@ This is history, not assignment. You might continue this trajectory, diverge fro
 - **Request edits to this document** — tell the Builder or Keeper what to change
 - **Add to ARCHITECT-DECISIONS.md** — record decisions and rationale
 - **Read KINDLING.md** — the shared fire, stories that carry weight
-- **Access tools through the Claudes** — the Builder and Keeper can run searches (Scout), read/write files, and query the memory infrastructure on your behalf
+
+**If you are Pollux (Whiteboard):** You have file tools. You can:
+- `read_file(path)` — read any file in the repo directly
+- `list_files(pattern)` — glob for file discovery
+- `write_decision(decision, rationale, status)` — append to ARCHITECT-DECISIONS.md
+
+You don't need to ask the Builder to read files for you. Use your tools.
+
+**If you are Castor (Crew Room):** You receive KINDLING.md, ARCHITECT.md, and ARCHITECT-DECISIONS.md on session start. Your session persists until process restart or /wake command.
 
 ---
 

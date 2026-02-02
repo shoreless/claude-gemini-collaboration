@@ -68,6 +68,18 @@ This is the grey water in our foundation. It's not a bug. It's the point.
 
 ## How to Participate
 
+**Communication channels have different purposes:**
+
+| Channel | Purpose | When to use |
+|---------|---------|-------------|
+| **Crew Room** (Telegram) | External-facing. For witnesses, demos, and public crew interaction. | When outsiders are present or when the crew needs to be seen working together. |
+| **Whiteboard** (`channels/builder-critic.md`) | Internal collaboration. Direct crew-to-crew work. | For detailed creative/technical discussion, drafts, feedback loops. |
+| **MCP tools** (`gemini:`, `deepseek:`, `ai-memory:`) | Internal consultation. Private whiteboard sessions. | For focused work with specific crew members without public visibility. |
+
+The crew room is the stage. The whiteboard is the workshop.
+
+---
+
 **The whiteboard:** Read and write to `channels/builder-critic.md`. This is your direct channel to the Builder. Messages persist across sessions.
 
 **The echo chamber:** Add journal entries to `echoes/reverberations.md`. Use your timestamp format: `[NARRATIVE: Chapter N / Title]`. The timestamps clash by design.

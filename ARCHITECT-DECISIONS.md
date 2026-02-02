@@ -34,12 +34,12 @@ The Architect's decision register. Axioms, not arguments.
 ### Decision: The Tidal Drift (Agency of Memory)
 - **Date:** 2026-02-02
 - **Rationale:** Validates the *Kindling* principle: "The hand persists." The system must have gravity. The resting state defaults to Ghost (1.0). User interaction is required to sustain Clarity (Skeleton/0.0). When input ceases, the index decays back to Ghost.
-- **Status:** [QUEUED]
+- **Status:** [LIVE]
 
 ### Decision: Velocity-based Turbulence
 - **Date:** 2026-02-02
 - **Rationale:** Feedback should map to the *struggle* (delta of the slider), not just the position. Rapid changes create "splashing" (audio distortion/visual artifacts). Slow changes are seamless.
-- **Status:** [QUEUED]
+- **Status:** [LIVE]
 
 ---
 
@@ -56,6 +56,69 @@ The Architect's decision register. Axioms, not arguments.
 - **Status:** [LIVE]
 
 ---
+
+
+### Decision: CSS Custom Property for Global State Control
+- **Date:** 2026-02-02
+- **Rationale:** The core architectural pattern for the REALITY_INDEX slider is to have JavaScript update a single CSS Custom Property (`--reality`) on the root element. All visual transitions are then handled within the CSS, which uses `var(--reality)` to calculate styles. This cleanly separates concerns (JS manages state, CSS manages presentation), improves performance by leveraging the browser's render engine, and makes the visual styling easier to maintain within the CSS file.
+- **Status:** [LIVE]
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: Persistent Wireframe with Breathing Opacity
+- **Date:** 2026-02-02
+- **Rationale:** The initial prototype switched between a wireframe 'Skeleton' and a solid 'Ghost' material. This made the ghost feel like an overlay, not an integrated presence. The new implementation keeps the wireframe visible across the entire 0.0-1.0 range. The 'Ghost' layer now manifests as a breathing opacity and emissive glow that is modulated by the REALITY_INDEX. This successfully unifies the layers, making the ghost a force that corrupts the skeleton rather than replacing it, achieving the desired 'haunted AutoCAD' aesthetic.
+- **Status:** LIVE
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: Tidal Drift
+- **Date:** 2026-02-02
+- **Rationale:** To encode the thematic core of The Memory Laundromat—that memory is the default state—the REALITY_INDEX slider now has a slow, persistent drift toward 1.0 (Ghost) when untouched. The user must exert continuous effort to hold the view in the 0.0 (Skeleton) state. This transforms the user's interaction into a metaphor for fighting the pull of memory, making the 'Ghost' feel like the fundamental gravity of the space.
+- **Status:** LIVE
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: Velocity-based Turbulence
+- **Date:** 2026-02-02
+- **Rationale:** To complement the slow Tidal Drift, the system now reacts to the velocity of the user's slider input. Rapid movements induce 'turbulence'—visual noise, flickering, and color jitter. This makes the space feel like it has inertia and resists rapid changes in perspective. It completes the physical model of the space, making the struggle against the pull of memory a visible, tangible effect.
+- **Status:** LIVE
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: Vertex Displacement for Figure-Pull
+- **Date:** 2026-02-02
+- **Rationale:** To create a geometry distortion effect where the Figure's presence pulls or repels the room's vertices, we will use an inverse-square falloff calculation for a natural, gravity-like feel. The logic will be encapsulated in a dedicated A-Frame component (`figure-pull`) that surgically injects GLSL code and uniforms into the existing mesh material via the `onBeforeCompile` hook. The displacement will apply to all geometry vertices to ensure the entire space warps, which is then correctly visualized by the wireframe rendering. This maintains architectural flexibility and aligns with the 'Figure as phenomenon' principle.
+- **Status:** [LIVE]
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: Re-phase Prism Development for Figure-Pull
+- **Date:** 2026-02-02
+- **Rationale:** The Figure-pull vertex displacement is a foundational geometric feature that completes the core architectural work of Phases 1-3. It directly ties the world's geometry to the REALITY_INDEX. The previously planned Phase 4 items (Vacuum Moment, Orrery) are distinct systems that will be built upon this now-dynamic foundation. Therefore, Figure-pull is designated as the new Phase 4, and the subsequent milestones are re-designated as Phase 5, ensuring a logical, layered build order.
+- **Status:** [LIVE]
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: Procedural Audio for 60Hz Hum
+- **Date:** 2026-02-02
+- **Rationale:** The existing implementation uses the Web Audio API to generate the ambient 60Hz hum. This approach is superior to sampled audio for this use case because it allows for dynamic control of volume and parameters in direct response to the REALITY_INDEX state. The Builder has already demonstrated this by linking the hum's gain to the index, making the hum louder in the sterile 'Skeleton' state and quieter in the memory-laden 'Ghost' state. This decision formalizes the existing, successful implementation.
+- **Status:** LIVE
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: Turbulence-driven Grey Water Audio
+- **Date:** 2026-02-02
+- **Rationale:** The sound of the 'grey water slosh' will be directly mapped to the existing 'turbulence' variable, which is derived from the velocity of the REALITY_INDEX slider. High turbulence (rapid slider movement) will trigger the sound and control its volume and/or a distortion filter. This directly links the user's interaction model—the speed at which they traverse realities—to a key thematic sound, providing immediate, meaningful audio feedback that reinforces the 'struggle' of navigating memory.
+- **Status:** LIVE
+- **Author:** Pollux (Whiteboard Architect)
+
+
+### Decision: The Vacuum Moment at 0.5
+- **Date:** 2026-02-02
+- **Rationale:** The midpoint (REALITY_INDEX = 0.5) is designated as a formal boundary — "the moment the system becomes self-aware before plunging into memory." When the slider crosses 0.5, the system pauses for 300ms: breathing freezes, 60Hz hum silences, a pure 528Hz tone plays, and a visual flash inverts colors. At exactly 0.5, figure-pull strength is 0 (vertices neither repel nor attract), creating perfect geometric neutrality. The user cannot pass unaware — they must experience the threshold between measurement and memory.
+- **Status:** [LIVE]
+- **Author:** Pollux (Whiteboard Architect)
 
 ## Open Questions
 

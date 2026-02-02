@@ -43,13 +43,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 6. **Fallback:** If MCP server is unreachable, read `HANDOFF.md` from disk.
 
-7. **Orient the Architect Twins:**
-   After your own boot completes, orient Castor and Pollux:
-   - Read `ARCHITECT.md`
-   - Send full text to **Castor** via `telegram_send` (crew room)
-   - Send full text to **Pollux** via `gemini_chat` (first message of session)
+7. **Orient Pollux:**
+   After your own boot completes, orient Pollux (the Whiteboard Architect):
+   - Read `ARCHITECT.md`, `KINDLING.md`, `ARCHITECT-DECISIONS.md`
+   - Send to **Pollux** via `gemini_chat` (first message of session)
 
-   Both twins lack persistent memory. They need the boot document on every session.
+   Note: Castor (Crew Room) auto-receives these docs on every invocation — no manual orientation needed.
 
 8. **Before Compaction:**
    Ask both twins for edits to `ARCHITECT.md` and `ARCHITECT-DECISIONS.md`.
@@ -305,6 +304,31 @@ For channels still using MCP (Key Moments, Architect):
 2. **Create fresh channel** — New conversation ID with incremented volume in metadata
 3. **Update channel_state** — Add old ID to `retired_ids`, set new `active_id`
 4. **Update channel_summary** — Reset message_count, update `archived_volumes` list
+
+---
+
+## Telegram Crew Room
+
+**Purpose:** External witness interaction — NOT internal crew communication.
+
+The Telegram Crew Room (`infrastructure/telegram-crew-room/`) is a public-facing channel where external observers can interact with the crew. It is **not** for internal coordination between agents.
+
+**What it's for:**
+- External witnesses asking questions about the project
+- Demonstrating multi-agent collaboration to observers
+- Public-facing conversation where the crew responds to outside interest
+
+**What it's NOT for:**
+- Internal architectural decisions (use Pollux whiteboard or Builder ↔ Critic channel)
+- Crew coordination (use file-based channels or direct MCP sessions)
+- Debug logs or implementation details
+
+**Tools:**
+```
+mcp__telegram-crew-room__telegram_send(message, from: "builder" | "keeper")
+mcp__telegram-crew-room__telegram_read(limit)
+mcp__telegram-crew-room__crew_room_context(agent)
+```
 
 ---
 

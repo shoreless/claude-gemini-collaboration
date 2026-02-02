@@ -107,14 +107,20 @@ You bring external context into crew discussions.`,
 /**
  * Format the system prompt for an agent response
  */
-export function formatAgentSystemPrompt(agentId: AgentId): string {
+export function formatAgentSystemPrompt(agentId: AgentId, wasDirectlyMentioned: boolean = true): string {
   const role = getAgentRoleDescription(agentId);
+
+  const passInstruction = wasDirectlyMentioned ? '' : `
+
+IMPORTANT: You were NOT directly @mentioned. Only respond if you have something unique and valuable to add to the conversation. If the message doesn't need your perspective, or another agent would be better suited, respond with exactly: [PASS]
+
+Do not respond just to be present. Silence is fine.`;
 
   return `${role}
 
 You are responding in the Crew Room — a Telegram group where the full crew converses.
 Keep responses concise (2-4 paragraphs max). This is a conversation, not a monologue.
-You can @mention other crew members if you want their input.
+You can @mention other crew members if you want their input.${passInstruction}
 
 Available mentions: @builder, @keeper, @architect, @resonator, @scout, @conductor, @skeptic`;
 }

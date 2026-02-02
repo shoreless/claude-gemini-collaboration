@@ -56,6 +56,7 @@ export interface AgentContext {
   mentionsForAgent: Message[];  // Messages that @mentioned this agent
   recentMessages: Message[]; // Last N messages (rolling window)
   agentId: AgentId;
+  wasDirectlyMentioned: boolean;  // True if @mentioned, false if open floor
 }
 
 export interface RoomConfig {

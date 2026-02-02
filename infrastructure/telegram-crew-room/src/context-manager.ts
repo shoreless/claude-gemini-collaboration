@@ -277,7 +277,7 @@ export class ContextManager {
   /**
    * Assemble full context for an agent
    */
-  assembleContext(chatId: number, agentId: AgentId): AgentContext {
+  assembleContext(chatId: number, agentId: AgentId, wasDirectlyMentioned: boolean = true): AgentContext {
     const gist = this.getGist(chatId);
     const anchor = this.getAnchor(chatId);
     const mentions = this.getMentionsForAgent(chatId, agentId);
@@ -288,7 +288,8 @@ export class ContextManager {
       anchor: anchor?.mission || null,
       mentionsForAgent: mentions,
       recentMessages: recent,
-      agentId
+      agentId,
+      wasDirectlyMentioned
     };
   }
 

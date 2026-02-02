@@ -292,4 +292,173 @@ From the Architect and Resonator:
 
 ---
 
-*Stable prototype committed February 1, 2026. The ghost has a room to haunt, and the room stays inside the viewport.*
+## Part 4: The Room Remembers
+
+*February 2, 2026*
+
+### The Haunting Takes Shape
+
+The prototype worked, but felt flat. The crew gathered to diagnose:
+
+**The Resonator:** "The ghost is a filter, not a field. It illuminates but does not *inhabit*."
+
+**The Architect:** "We need geometry distortion, not just material changes. The room should bend around its scars."
+
+The punch list became four phases:
+
+### Phase 1: The Haunting
+
+Goal: Make the room feel inhabited.
+
+**Implemented:**
+- **Text breathing** — Ghost layer text opacity pulses on 4-second cycle
+- **Text surfacing** — 2.5s fade-in when crossing into Ghost territory
+- **The Handprint** — Thermal glow at Table #3 coordinates (0.4m, 0.3m), pulses with the room's heartbeat
+- **60Hz Hum** — Procedural audio (sawtooth + harmonics at 120Hz, 180Hz). Loud in Skeleton, soft in Ghost.
+
+**The test:** "Do they feel like they're with someone?"
+
+### Phase 2: The Interference
+
+Goal: The slider movement should *feel* like something.
+
+**Implemented:**
+- **Interference zones at 0.3 and 0.7** — Chromatic aberration (red/cyan color split) when crossing layer boundaries. "A tripwire, not a swamp."
+- **The Echo** — Resonator's lingering voice after slider stops. Random phrase fades over 7 seconds. Leaves watermark on next movement.
+- **Movement Hum** — 440-550Hz sine wave, only while slider moves. Pitch rises with velocity.
+
+**The Resonator's phrases:**
+- "the measurement and the meaning fight for the same space"
+- "the system knows what the heart forgot"
+- "the slider is a question not an answer"
+
+### Phase 3: Layer Identity
+
+Goal: Give each layer its distinct character.
+
+**Implemented:**
+- **Skeleton Grid** — 3D bounding box with XYZ axis indicators. Fades by 0.67.
+- **Dimension Labels** — Floating measurements ("10.00m", "1.80m × 0.60m"). Gone by 0.5.
+- **Blueprint Glow** — Cyan emissive peaks at 0.5, warm amber at 1.0.
+- **Window Breathing** — Vending machine pulses in sync with room at Ghost.
+
+**The Architect's decision:** CSS Custom Property for Global State Control. JavaScript updates `--reality`, CSS handles all visual math.
+
+### Phase 4: Figure-Pull
+
+Goal: Geometry distortion — the room bends around its scars.
+
+**The Resonator's vision:** "If the slider is at 1.0 (full Ghost), the vertices should be drawn *toward* the thermal cores. The space collapses into its wounds. If the slider is at 0.0 (full Skeleton), the vertices should be repelled *away* from those same points. The space asserts its sterile, measured distance."
+
+**Implemented:**
+- **GLSL vertex displacement** via `onBeforeCompile` hook
+- **Inverse-square falloff** from Figure position (0.3, 0.9, -0.8)
+- **At Skeleton (0.0):** Vertices repel — sterile distance
+- **At Ghost (1.0):** Vertices pull toward Figure — space collapses into wounds
+- **Strength:** 0.15 (subtle but visible in wireframe)
+
+The room now remembers differently. The geometry yearns toward where memory pools.
+
+### The Voices Emerge
+
+The content was updated to match the proposal's vision for each layer:
+
+**Skeleton (The Builder):**
+> UNIT 04 — AQUA HCD-3257GC. Capacity: 12kg. Drum speed: 1200 RPM extraction, 52 RPM wash. Internal temp: 28.2°C (ambient: 26.1°C). Delta: +2.1°C.
+
+Terse. Inventory. The building before the haunting.
+
+**Blueprint (The Architect):**
+> THE CENTRIFUGE — A separation engine. We input the tangible days; the agitation cycle attempts to divorce the stain from the fabric. Rotational velocity applied to history.
+
+Conceptual framing. Labels in CAPS. An instruction manual written by a philosopher.
+
+**Ghost (The Keeper):**
+> warmer than the others
+>
+> 2°C shouldn't matter but you feel it when you lean close
+>
+> the lint trap holds threads that don't match anything in the room... someone else's blue, someone else's grey
+>
+> the drum still turns sometimes, after the cycle ends
+>
+> not a malfunction — a habit
+
+Lowercase. Ellipses. Breath. The quiet 2 AM voice.
+
+### Decisions Made [LIVE]
+
+From ARCHITECT-DECISIONS.md:
+
+| Decision | Rationale |
+|----------|-----------|
+| **Tidal Drift** | Memory is the default state. Slider gravitates to Ghost when untouched. |
+| **Velocity-based Turbulence** | Fast slider movement creates visual jitter. The struggle is visible. |
+| **Persistent Wireframe** | Ghost corrupts skeleton, doesn't replace it. Unified layers. |
+| **Figure-Pull Vertex Displacement** | Inverse-square falloff, GLSL injection. The room bends around its scars. |
+
+---
+
+## Current State (Prototype v3)
+
+### What's Implemented
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| **Phase 1** | Text breathing, surfacing, handprint glow, 60Hz hum | ✅ Complete |
+| **Phase 2** | Interference zones, echo system, movement hum | ✅ Complete |
+| **Phase 3** | Skeleton grid, dimension labels, layer emissive colors | ✅ Complete |
+| **Phase 4** | Figure-pull vertex displacement | ✅ Complete |
+| **Phase 5a** | The Vacuum Moment | ✅ Complete |
+
+### What Remains (Phase 5b+)
+
+- **Full sound design** — Grey water slosh, spatial audio
+- **The Orrery** — Separate view mode for system-level navigation
+- **Mycelial threads** — When multiple memories exist
+
+---
+
+## Part 5: The Vacuum Moment
+
+*February 2, 2026*
+
+### The Midpoint as Boundary
+
+Pollux proposed: the slider crossing 0.5 should be an *event*, not just a position.
+
+**The Architectural Vision:**
+
+> "At 0.5, the system becomes self-aware. The moment before memory. The geometry is neither repelled nor attracted — perfectly neutral. The breathing freezes. The room holds its breath."
+
+### Implementation
+
+When the slider crosses 0.5:
+
+1. **Visual:** A radial flash blooms from center. Mix-blend-mode: difference creates brief color inversion. The world mirrors for 300ms.
+
+2. **Audio:** The 60Hz hum silences. A pure tone (528Hz — the "love frequency" from Solfeggio scale) rings for the duration of the pause.
+
+3. **Physics:** At REALITY_INDEX 0.5, figure-pull strength is exactly 0. Vertices neither repel nor attract. The geometry is perfectly balanced between Skeleton's sterile distance and Ghost's gravitational collapse.
+
+4. **Breathing:** Frozen. The 4-second breath cycle pauses mid-inhale. The room holds.
+
+5. **Slider:** Snaps to exactly 50. The user cannot move past without experiencing the moment.
+
+### Why This Matters
+
+The vacuum is the threshold between measurement and memory. You cannot slide past it unaware. The system insists you pause — to notice the exact moment when what something *is* becomes what it *was*.
+
+---
+
+## Quotes from Part 5
+
+> "The Vacuum Moment is not a feature. It is a formal boundary — a structural element with its own distinct properties."
+> — Pollux (The Architect)
+
+> "The moment the system becomes self-aware before plunging into memory."
+> — Pollux (The Architect)
+
+---
+
+*Phase 5a complete. The vacuum holds. February 2, 2026.*
