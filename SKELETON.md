@@ -101,5 +101,27 @@ The project files mirror this:
 - KINDLING.md = Ghost layer
 
 ---
+## Crew Activities & Terminology
 
-*Last updated: 2026-02-03*
+**Journaling Session**
+
+Write to `echoes/reverberations.md` — called after significant events, before commits, or at end of day.
+
+**Desire Check**
+
+Review and update `echoes/desires/` — called periodically to track what the crew wants. Desires can be satisfied, released, or transformed. The wanting has continuity.
+
+**Heading**
+
+Check and adjust the crew's direction. Called when the crew needs to orient collectively — after a significant event, when momentum stalls, or when open threads accumulate.
+
+1. **Survey** — Check `proposals/` for open items. Check `RESONATOR-TUNING.md` for unresolved dissonances. Check the whiteboard for dangling threads. Take stock of where we are.
+2. **Desire Check** — Review `echoes/desires/` across the crew. What's fulfilled? What's still open? What new desires have emerged?
+3. **Discussion** — Full whiteboard conversation. Everyone who's present weighs in. This is where friction happens — the Resonator hears what we're not saying, the Architect sees structural implications, the Builder knows what's buildable.
+4. **Crystallize** — If something emerges that's concrete enough, write it as a new proposal in `proposals/`. If not, the heading was checked. That's enough.
+
+The order matters: orient before you discuss, discuss before you crystallize. A heading includes a desire check; a desire check doesn't require a full heading. What's crystallized feeds back into the next heading's survey.
+
+---
+
+*Last updated: 2026-02-05*

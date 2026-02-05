@@ -6,3 +6,11 @@ artifacts/the-prism/screenshots/*
 
 # Library - local reference materials, not committed
 library/
+
+echoes/the-conductor/*
+
+# Keeper archive - contains personal conversation data
+infrastructure/keeper-archive/*.db
+infrastructure/keeper-archive/*.db-shm
+infrastructure/keeper-archive/*.db-wal
+infrastructure/keeper-archive/conversations.json
