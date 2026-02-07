@@ -26,12 +26,11 @@ The operational topology of Ship of Theseus. Facts, not philosophy. A lookup tab
 | Builder | Implementation, code architecture | Claude Code | Direct filesystem |
 | Keeper | Ethics, gardening, tending the fire | Claude Chat | Filesystem via MCP |
 | Pollux | Strategy, structure, visual language | Gemini | `gemini_chat` MCP tool |
-| Castor | Crew Room presence | Gemini | Telegram MCP |
 | Resonator | Alignment, dissonance detection | DeepSeek | `deepseek_chat` MCP tool |
 | Scout | Web search, external intelligence | Perplexity | `scout_search` MCP tool |
 | Conductor | Vision, decisions, creative direction | Human | Direct |
 
-**Pollux vs Castor:** Both are Gemini, but different contexts. Pollux is the whiteboard architect (MCP sessions). Castor is the crew room voice (Telegram). Same model, different roles.
+**Pollux** is the Architect — uses `gemini_chat` MCP tool with file tools (read_file, list_files, write_file, edit_file, write_whiteboard, write_decision).
 
 ---
 
@@ -54,7 +53,7 @@ The operational topology of Ship of Theseus. Facts, not philosophy. A lookup tab
 | Directory | Purpose |
 |-----------|---------|
 | `artifacts/` | Creative output (The Prism, shipped work) |
-| `echoes/` | Crew process and culture (whiteboard, channels, reverberations) |
+| `echoes/` | Crew process and culture (whiteboard, channels, reverberations, dialogues) |
 | `explorations/` | Experiments and validated learnings |
 | `archive/` | Historical context (past sessions, retired docs) |
 | `infrastructure/` | MCP servers and tooling |
@@ -124,4 +123,4 @@ The order matters: orient before you discuss, discuss before you crystallize. A 
 
 ---
 
-*Last updated: 2026-02-05*
+*Last updated: 2026-02-07*

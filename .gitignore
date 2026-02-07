@@ -7,7 +7,8 @@ artifacts/the-prism/screenshots/*
 # Library - local reference materials, not committed
 library/
 
-echoes/the-conductor/*
+echoes/the-conductor
+echoes/the-skeptic
 
 # Keeper archive - contains personal conversation data
 infrastructure/keeper-archive/*.db

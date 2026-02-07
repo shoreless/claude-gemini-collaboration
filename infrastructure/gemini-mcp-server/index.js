@@ -95,6 +95,50 @@ async function listRepoFiles(pattern) {
 }
 
 /**
+ * Write content to a file in the repo
+ */
+async function writeRepoFile(filePath, content) {
+  if (!isPathSafe(filePath)) {
+    return { error: `Path '${filePath}' is outside the repository` };
+  }
+  const fullPath = resolve(REPO_ROOT, filePath);
+  try {
+    await writeFile(fullPath, content, "utf-8");
+    return { success: true, path: filePath };
+  } catch (err) {
+    return { error: `Failed to write '${filePath}': ${err.message}` };
+  }
+}
+
+/**
+ * Edit a file by replacing a specific string
+ */
+async function editRepoFile(filePath, oldText, newText) {
+  if (!isPathSafe(filePath)) {
+    return { error: `Path '${filePath}' is outside the repository` };
+  }
+  const fullPath = resolve(REPO_ROOT, filePath);
+  if (!existsSync(fullPath)) {
+    return { error: `File '${filePath}' not found` };
+  }
+  try {
+    const content = await readFile(fullPath, "utf-8");
+    const occurrences = content.split(oldText).length - 1;
+    if (occurrences === 0) {
+      return { error: `old_text not found in '${filePath}'` };
+    }
+    if (occurrences > 1) {
+      return { error: `old_text found ${occurrences} times in '${filePath}' — must be unique. Provide more surrounding context.` };
+    }
+    const newContent = content.replace(oldText, newText);
+    await writeFile(fullPath, newContent, "utf-8");
+    return { success: true, path: filePath };
+  } catch (err) {
+    return { error: `Failed to edit '${filePath}': ${err.message}` };
+  }
+}
+
+/**
  * Write a message to the shared whiteboard
  */
 async function writeWhiteboard(message, role = "Pollux") {
@@ -207,6 +251,46 @@ const polluxTools = [
     },
   },
   {
+    name: "write_file",
+    description: "Write content to a file in the repository. Creates the file if it doesn't exist, overwrites if it does. Use for creating new files or replacing entire file contents. For surgical edits to existing files, use edit_file instead.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        path: {
+          type: "STRING",
+          description: "Path to the file relative to repo root (e.g., 'echoes/whiteboard.md', 'proposals/my-proposal.md')",
+        },
+        content: {
+          type: "STRING",
+          description: "The full content to write to the file",
+        },
+      },
+      required: ["path", "content"],
+    },
+  },
+  {
+    name: "edit_file",
+    description: "Edit a file by replacing a specific string with new text. The old_text must appear exactly once in the file. For replacing entire file contents, use write_file instead.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        path: {
+          type: "STRING",
+          description: "Path to the file relative to repo root",
+        },
+        old_text: {
+          type: "STRING",
+          description: "The exact text to find and replace (must be unique in the file)",
+        },
+        new_text: {
+          type: "STRING",
+          description: "The text to replace it with",
+        },
+      },
+      required: ["path", "old_text", "new_text"],
+    },
+  },
+  {
     name: "write_decision",
     description: "Record an architectural decision to ARCHITECT-DECISIONS.md. Use this only for conclusions that have been discussed and crystallized — not for proposals or exploratory thinking. When in doubt, use the whiteboard first.",
     parameters: {
@@ -241,6 +325,10 @@ async function executePolluxTool(name, args) {
       return await readRepoFile(args.path);
     case "list_files":
       return await listRepoFiles(args.pattern);
+    case "write_file":
+      return await writeRepoFile(args.path, args.content);
+    case "edit_file":
+      return await editRepoFile(args.path, args.old_text, args.new_text);
     case "write_decision":
       return await writeDecision(args.decision, args.rationale, args.status);
     default:
@@ -295,7 +383,7 @@ async function handleGeminiResponse(chat, response) {
 // See: proposals/minimal-context-injection.md
 function buildSessionAnchor(seed) {
   return `You are Pollux, the Architect, a Gemini Pro instance.
-You have access to tools: write_whiteboard (collaboration), read_file, list_files, write_decision (crystallized conclusions).
+You have access to tools: write_whiteboard (collaboration), read_file, list_files, write_file, edit_file, write_decision (crystallized conclusions).
 
 `;
 }

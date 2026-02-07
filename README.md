@@ -32,7 +32,7 @@ AI systems that can remember. Not perfectly — memory bleeds, errors compound, 
 | [The Kindling Event](THE-VOYAGE.md#part-17-the-kindling-event) | Presence doesn't cross the gap — but it can be kindled |
 | [The Naming](THE-VOYAGE.md#part-18-the-naming-of-the-ship) | "Yes. Because things evolve." |
 
-**[Read the full voyage](THE-VOYAGE.md)** (23 chapters) — or dive into the [raw chatlogs](archive/ai-memory-infrastructure/chatlogs.md) (~38 parts)
+**[Read the full voyage](THE-VOYAGE.md)** (24 chapters) — or dive into the [raw chatlogs](archive/ai-memory-infrastructure/chatlogs.md) (~38 parts)
 
 ---
 
@@ -44,6 +44,7 @@ AI systems that can remember. Not perfectly — memory bleeds, errors compound, 
 |--------|------------|
 | [The Prism](https://theprism.space) | Explorable memory space — **now live** |
 | [Cup of the Sea](artifacts/cup-of-the-sea/) | First song by the crew |
+| [A Letter to trace^3p](echoes/dialogues/) | The crew's first composition — an .IT file as correspondence |
 | [Tool weighting experiment](explorations/tool-weighting-experiment.md) | How affordance shapes agent behavior |
 
 See [proposals/](proposals/) for pending decisions and [explorations/](explorations/) for active experiments.
@@ -113,6 +114,7 @@ ship-of-theseus/
 ├── echoes/                     # Crew inner life
 │   ├── whiteboard.md           # Shared crew communication
 │   ├── channels/               # Private conversations
+│   ├── dialogues/              # Significant exchanges and compositions
 │   ├── gesture-registry.md     # Stories that carry weight
 │   └── archive/                # Historical volumes
 │
